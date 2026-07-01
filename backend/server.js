@@ -15,6 +15,61 @@ app.use(express.json({ limit: '2mb' }));
 // her istekte bağlantı kontrolü yapacağız
 let isConnected = false;
 let connectPromise = null;
+let adminBootstrapPromise = null;
+
+async function ensureBootstrapAdmin() {
+  if (adminBootstrapPromise) return adminBootstrapPromise;
+
+  adminBootstrapPromise = (async () => {
+    const User = require('./models/User');
+    const adminUsername = (process.env.SEED_ADMIN_USERNAME || 'admin').toLowerCase().trim();
+    const adminPassword = process.env.SEED_ADMIN_PASSWORD || 'admin123';
+    const adminName = process.env.SEED_ADMIN_NAME || 'Sistem Yöneticisi';
+
+    const existing = await User.findOne({ username: adminUsername });
+    if (!existing) {
+      await User.create({
+        username: adminUsername,
+        password: adminPassword,
+        name: adminName,
+        role: 'admin',
+        active: true
+      });
+      console.log(`İlk admin oluşturuldu: ${adminUsername}`);
+      return true;
+    }
+
+    let changed = false;
+    if (existing.role !== 'admin') {
+      existing.role = 'admin';
+      changed = true;
+    }
+    if (!existing.active) {
+      existing.active = true;
+      changed = true;
+    }
+    if (!existing.name) {
+      existing.name = adminName;
+      changed = true;
+    }
+
+    if (changed) {
+      await existing.save();
+      console.log(`Admin hesabı güncellendi: ${adminUsername}`);
+    }
+
+    return true;
+  })()
+    .catch((err) => {
+      console.error('Admin bootstrap hatası:', err.message);
+      return false;
+    })
+    .finally(() => {
+      adminBootstrapPromise = null;
+    });
+
+  return adminBootstrapPromise;
+}
 
 async function dbConnect() {
   if (isConnected) return true;
@@ -35,6 +90,12 @@ async function dbConnect() {
     .then(() => {
       isConnected = true;
       console.log('MongoDB bağlantısı başarılı');
+      return ensureBootstrapAdmin();
+    })
+    .then((adminReady) => {
+      if (!adminReady) {
+        throw new Error('Admin bootstrap completed with errors');
+      }
       return true;
     })
     .catch((err) => {
@@ -100,21 +161,7 @@ if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
       });
       isConnected = true;
       console.log('MongoDB bağlantısı başarılı:', MONGO);
-
-      // İlk admin yoksa oluştur
-      const User = require('./models/User');
-      const adminUsername = (process.env.SEED_ADMIN_USERNAME || 'admin').toLowerCase();
-      const existing = await User.findOne({ username: adminUsername });
-      if (!existing) {
-        await User.create({
-          username: adminUsername,
-          password: process.env.SEED_ADMIN_PASSWORD || 'admin123',
-          name: process.env.SEED_ADMIN_NAME || 'Sistem Yöneticisi',
-          role: 'admin',
-          active: true
-        });
-        console.log(`İlk admin oluşturuldu: ${adminUsername}`);
-      }
+      await ensureBootstrapAdmin();
 
       app.listen(PORT, () => {
         console.log(`API dinleniyor: http://localhost:${PORT}`);
