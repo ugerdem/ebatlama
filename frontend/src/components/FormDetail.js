@@ -312,11 +312,13 @@ export default function FormDetail() {
                   <th>NO</th>
                   <th>MALZEME</th>
                   <th>PVC</th>
-                  <th>BOY</th>
-                  <th>EN</th>
+                  <th>BOY (mm)</th>
+                  <th>EN (mm)</th>
                   <th>ADET</th>
-                  <th>BOY</th>
-                  <th>EN</th>
+                  <th>Üst</th>
+                  <th>Sol</th>
+                  <th>Sağ</th>
+                  <th>Alt</th>
                 </tr>
               </thead>
               <tbody>
@@ -365,14 +367,34 @@ export default function FormDetail() {
                     </td>
                     <td>
                       <input
-                        value={row.boy2 || ''}
-                        onChange={(e) => updateEditRow(idx, 'boy2', e.target.value)}
+                        type="checkbox"
+                        checked={row.pvcBoy1 === true}
+                        onChange={(e) => updateEditRow(idx, 'pvcBoy1', e.target.checked)}
+                        aria-label="Üst kenar PVC"
                       />
                     </td>
                     <td>
                       <input
-                        value={row.en2 || ''}
-                        onChange={(e) => updateEditRow(idx, 'en2', e.target.value)}
+                        type="checkbox"
+                        checked={row.pvcEn1 === true}
+                        onChange={(e) => updateEditRow(idx, 'pvcEn1', e.target.checked)}
+                        aria-label="Sol kenar PVC"
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="checkbox"
+                        checked={row.pvcEn2 === true}
+                        onChange={(e) => updateEditRow(idx, 'pvcEn2', e.target.checked)}
+                        aria-label="Sağ kenar PVC"
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="checkbox"
+                        checked={row.pvcBoy2 === true}
+                        onChange={(e) => updateEditRow(idx, 'pvcBoy2', e.target.checked)}
+                        aria-label="Alt kenar PVC"
                       />
                     </td>
                   </tr>

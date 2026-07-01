@@ -54,7 +54,11 @@ router.post('/', authOptional, async (req, res) => {
         en1: r.en1 != null ? String(r.en1) : '',
         adet: Number(r.adet) || 0,
         boy2: r.boy2 != null ? String(r.boy2) : '',
-        en2: r.en2 != null ? String(r.en2) : ''
+        en2: r.en2 != null ? String(r.en2) : '',
+        pvcBoy1: r.pvcBoy1 === true,
+        pvcBoy2: r.pvcBoy2 === true,
+        pvcEn1: r.pvcEn1 === true,
+        pvcEn2: r.pvcEn2 === true
       };
     });
 
@@ -153,7 +157,11 @@ router.put('/:id', async (req, res) => {
           en1: r.en1 != null ? String(r.en1) : '',
           adet: Number(r.adet) || 0,
           boy2: r.boy2 != null ? String(r.boy2) : '',
-          en2: r.en2 != null ? String(r.en2) : ''
+          en2: r.en2 != null ? String(r.en2) : '',
+          pvcBoy1: r.pvcBoy1 === true,
+          pvcBoy2: r.pvcBoy2 === true,
+          pvcEn1: r.pvcEn1 === true,
+          pvcEn2: r.pvcEn2 === true
         };
       });
     }

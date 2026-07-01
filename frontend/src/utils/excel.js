@@ -23,16 +23,19 @@ export function exportFormToExcel(form) {
     []
   ];
 
+  // Hücre değerinin sonuna kenar PVC işaretli ise " X" ekler
+  const withX = (val, flag) => (flag ? `${val || ''} X` : val || '');
+
   const tableHeader = ['NO', 'MALZEMENİN CİNSİ', 'PVC', 'BOY', 'EN', 'ADET', 'BOY', 'EN'];
   const tableRows = rows.map((r, i) => [
     i + 1,
     r.malzeme || '',
     r.pvc || '',
-    r.boy1 || '',
-    r.en1 || '',
+    withX(r.boy1, r.pvcBoy1),
+    withX(r.en1, r.pvcEn1),
     r.adet || 0,
-    r.boy2 || '',
-    r.en2 || ''
+    withX(r.boy2 || r.boy1, r.pvcBoy2),
+    withX(r.en2 || r.en1, r.pvcEn2)
   ]);
 
   const ws = XLSX.utils.aoa_to_sheet([...headerInfo, tableHeader, ...tableRows]);

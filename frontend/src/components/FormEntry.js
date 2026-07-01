@@ -26,10 +26,10 @@ export default function FormEntry() {
     boy1: '',
     en1: '',
     adet: '',
-    useBoy2: false,
-    useEn2: false,
-    boy2: '',
-    en2: ''
+    pvcBoy1: false,
+    pvcBoy2: false,
+    pvcEn1: false,
+    pvcEn2: false
   });
   const [submitting, setSubmitting] = useState(false);
   const [toast, setToast] = useState(null);
@@ -54,10 +54,10 @@ export default function FormEntry() {
       boy1: '',
       en1: '',
       adet: '',
-      useBoy2: false,
-      useEn2: false,
-      boy2: '',
-      en2: ''
+      pvcBoy1: false,
+      pvcBoy2: false,
+      pvcEn1: false,
+      pvcEn2: false
     });
     setShowRowModal(true);
   }
@@ -72,10 +72,10 @@ export default function FormEntry() {
       boy1: row.boy1 || '',
       en1: row.en1 || '',
       adet: row.adet || '',
-      useBoy2: Boolean(row.useBoy2 || row.boy2),
-      useEn2: Boolean(row.useEn2 || row.en2),
-      boy2: row.boy2 || '',
-      en2: row.en2 || ''
+      pvcBoy1: row.pvcBoy1 === true,
+      pvcBoy2: row.pvcBoy2 === true,
+      pvcEn1: row.pvcEn1 === true,
+      pvcEn2: row.pvcEn2 === true
     });
     setShowRowModal(true);
   }
@@ -94,11 +94,9 @@ export default function FormEntry() {
     const errs = [];
     if (!draft.malzeme.trim()) errs.push('Malzeme cinsi zorunlu');
     if (!draft.pvc) errs.push('PVC tipi seçmelisiniz');
-    if (!draft.boy1.trim()) errs.push('1. boy mm bilgisi zorunlu');
-    if (!draft.en1.trim()) errs.push('1. en mm bilgisi zorunlu');
+    if (!draft.boy1.trim()) errs.push('Boy (mm) bilgisi zorunlu');
+    if (!draft.en1.trim()) errs.push('En (mm) bilgisi zorunlu');
     if (!String(draft.adet).trim() || Number(draft.adet) <= 0) errs.push('Adet 0’dan büyük olmalı');
-    if (draft.useBoy2 && !draft.boy2.trim()) errs.push('2. boy mm bilgisi zorunlu');
-    if (draft.useEn2 && !draft.en2.trim()) errs.push('2. en mm bilgisi zorunlu');
     return errs;
   }
 
@@ -107,16 +105,10 @@ export default function FormEntry() {
     (rows || []).forEach((row, index) => {
       if (!row.malzeme?.trim()) errs.push(`${index + 1}. satırda malzeme cinsi eksik`);
       if (!row.pvc) errs.push(`${index + 1}. satırda PVC tipi eksik`);
-      if (!row.boy1?.trim()) errs.push(`${index + 1}. satırda 1. boy eksik`);
-      if (!row.en1?.trim()) errs.push(`${index + 1}. satırda 1. en eksik`);
+      if (!row.boy1?.trim()) errs.push(`${index + 1}. satırda boy (mm) eksik`);
+      if (!row.en1?.trim()) errs.push(`${index + 1}. satırda en (mm) eksik`);
       if (!Number(row.adet) || Number(row.adet) <= 0) {
         errs.push(`${index + 1}. satırda adet 0'dan büyük olmalı`);
-      }
-      if (row.useBoy2 && !row.boy2?.trim()) {
-        errs.push(`${index + 1}. satırda 2. boy işaretli ama boş`);
-      }
-      if (row.useEn2 && !row.en2?.trim()) {
-        errs.push(`${index + 1}. satırda 2. en işaretli ama boş`);
       }
     });
     return errs;
@@ -133,10 +125,10 @@ export default function FormEntry() {
       boy1: rowDraft.boy1.trim(),
       en1: rowDraft.en1.trim(),
       adet: Number(rowDraft.adet),
-      useBoy2: Boolean(rowDraft.useBoy2),
-      useEn2: Boolean(rowDraft.useEn2),
-      boy2: rowDraft.useBoy2 ? rowDraft.boy2.trim() : '',
-      en2: rowDraft.useEn2 ? rowDraft.en2.trim() : ''
+      pvcBoy1: rowDraft.pvcBoy1 === true,
+      pvcBoy2: rowDraft.pvcBoy2 === true,
+      pvcEn1: rowDraft.pvcEn1 === true,
+      pvcEn2: rowDraft.pvcEn2 === true
     };
 
     setForm((f) => {
@@ -313,11 +305,20 @@ export default function FormEntry() {
                     <span className="badge isleme_alindi row-summary-badge">{row.pvc || 'PVC yok'}</span>
                   </div>
                   <div className="row-summary-meta">
-                    <span><strong>1. Boy:</strong> {row.boy1} mm</span>
-                    <span><strong>1. En:</strong> {row.en1} mm</span>
+                    <span><strong>Boy:</strong> {row.boy1} mm</span>
+                    <span><strong>En:</strong> {row.en1} mm</span>
                     <span><strong>Adet:</strong> {row.adet}</span>
-                    <span><strong>2. Boy:</strong> {row.useBoy2 ? `${row.boy2} mm` : 'Yok'}</span>
-                    <span><strong>2. En:</strong> {row.useEn2 ? `${row.en2} mm` : 'Yok'}</span>
+                    <span className="row-summary-edges">
+                      <strong>PVC Kenarları:</strong>{' '}
+                      {[
+                        row.pvcBoy1 && 'Üst',
+                        row.pvcEn1 && 'Sol',
+                        row.pvcEn2 && 'Sağ',
+                        row.pvcBoy2 && 'Alt'
+                      ]
+                        .filter(Boolean)
+                        .join(' • ') || 'Yok'}
+                    </span>
                   </div>
                   <div className="row-summary-actions">
                     <button type="button" className="btn secondary" onClick={() => openEditRowModal(idx)}>
@@ -398,18 +399,6 @@ export default function FormEntry() {
                       pattern="[0-9]*"
                     />
                   </div>
-                  {rowDraft.useEn2 && (
-                    <div className="field">
-                      <label>2. En (mm)</label>
-                      <input
-                        value={rowDraft.en2}
-                        onChange={(e) => updateRowDraft('en2', onlyDigits(e.target.value))}
-                        placeholder="mm"
-                        inputMode="numeric"
-                        pattern="[0-9]*"
-                      />
-                    </div>
-                  )}
                   <div className="field">
                     <label>Boy (mm) *</label>
                     <input
@@ -420,18 +409,6 @@ export default function FormEntry() {
                       pattern="[0-9]*"
                     />
                   </div>
-                  {rowDraft.useBoy2 && (
-                    <div className="field">
-                      <label>2. Boy (mm)</label>
-                      <input
-                        value={rowDraft.boy2}
-                        onChange={(e) => updateRowDraft('boy2', onlyDigits(e.target.value))}
-                        placeholder="mm"
-                        inputMode="numeric"
-                        pattern="[0-9]*"
-                      />
-                    </div>
-                  )}
                 </div>
               </div>
 
@@ -454,30 +431,54 @@ export default function FormEntry() {
                 </div>
               </div>
 
-              {/* 4. İkinci Ölçü toggle — En / Boy başlıkları + 2 checkbox */}
+              {/* 4. PVC Kenarları — dikdörtgen tahta, 4 kenar bağımsız */}
               <div className="modal-section">
-                <div className="section-caption">4. İkinci Ölçü</div>
-                <div className="dim-toggle-grid">
-                  <div className="dim-toggle-block">
-                    <div className="dim-toggle-header">En</div>
+                <div className="section-caption">4. PVC Kenarları</div>
+                <p className="row-dimension-hint" style={{ margin: '0 0 8px' }}>
+                  Tahtanın hangi kenarlarına PVC uygulanacağını seçin (4 kenar bağımsız).
+                </p>
+                <div className="edge-grid">
+                  <div className="edge-cell edge-cell-top">
                     <label className="dim-checkbox-row">
                       <input
                         type="checkbox"
-                        checked={rowDraft.useEn2}
-                        onChange={(e) => updateRowDraft('useEn2', e.target.checked)}
+                        checked={rowDraft.pvcBoy1}
+                        onChange={(e) => updateRowDraft('pvcBoy1', e.target.checked)}
                       />
-                      <span>2. En ekle</span>
+                      <span>Üst kenar (Boy 1)</span>
                     </label>
                   </div>
-                  <div className="dim-toggle-block">
-                    <div className="dim-toggle-header">Boy</div>
+                  <div className="edge-cell edge-cell-left">
                     <label className="dim-checkbox-row">
                       <input
                         type="checkbox"
-                        checked={rowDraft.useBoy2}
-                        onChange={(e) => updateRowDraft('useBoy2', e.target.checked)}
+                        checked={rowDraft.pvcEn1}
+                        onChange={(e) => updateRowDraft('pvcEn1', e.target.checked)}
                       />
-                      <span>2. Boy ekle</span>
+                      <span>Sol kenar (En 1)</span>
+                    </label>
+                  </div>
+                  <div className="edge-cell edge-cell-board">
+                    <div className="edge-board-inner" />
+                  </div>
+                  <div className="edge-cell edge-cell-right">
+                    <label className="dim-checkbox-row">
+                      <input
+                        type="checkbox"
+                        checked={rowDraft.pvcEn2}
+                        onChange={(e) => updateRowDraft('pvcEn2', e.target.checked)}
+                      />
+                      <span>Sağ kenar (En 2)</span>
+                    </label>
+                  </div>
+                  <div className="edge-cell edge-cell-bottom">
+                    <label className="dim-checkbox-row">
+                      <input
+                        type="checkbox"
+                        checked={rowDraft.pvcBoy2}
+                        onChange={(e) => updateRowDraft('pvcBoy2', e.target.checked)}
+                      />
+                      <span>Alt kenar (Boy 2)</span>
                     </label>
                   </div>
                 </div>

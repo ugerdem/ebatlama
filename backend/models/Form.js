@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
-// Her satır için alt şema: NO, BOY, EN, ADET, BOY2, EN2 (formda iki taraf var)
+// Her satır için alt şema: NO, BOY, EN, ADET, BOY2, EN2 (eski format) +
+// yeni 4 kenar için PVC bayrakları (pvcBoy1, pvcBoy2, pvcEn1, pvcEn2)
 const rowSchema = new mongoose.Schema(
   {
     malzeme: { type: String, default: '' },
@@ -8,8 +9,13 @@ const rowSchema = new mongoose.Schema(
     boy1: { type: String, default: '' },
     en1: { type: String, default: '' },
     adet: { type: Number, default: 0 },
-    boy2: { type: String, default: '' },
-    en2: { type: String, default: '' }
+    boy2: { type: String, default: '' }, // geriye uyumluluk: eski 2. boy alanı
+    en2: { type: String, default: '' },  // geriye uyumluluk: eski 2. en alanı
+    // 4 kenar için PVC bayrakları (dikdörtgen tahta, her kenar bağımsız)
+    pvcBoy1: { type: Boolean, default: false }, // BOY yönü — kenar 1 (üst)
+    pvcBoy2: { type: Boolean, default: false }, // BOY yönü — kenar 2 (alt)
+    pvcEn1: { type: Boolean, default: false },  // EN yönü — kenar 1 (sol)
+    pvcEn2: { type: Boolean, default: false }   // EN yönü — kenar 2 (sağ)
   },
   { _id: false }
 );

@@ -7,7 +7,11 @@ export function makeEmptyRows() {
     en1: '',
     adet: 0,
     boy2: '',
-    en2: ''
+    en2: '',
+    pvcBoy1: false,
+    pvcBoy2: false,
+    pvcEn1: false,
+    pvcEn2: false
   }));
 }
 
@@ -38,7 +42,11 @@ export function compactRows(rows) {
       r.en1 ||
       (r.adet && r.adet > 0) ||
       r.boy2 ||
-      r.en2
+      r.en2 ||
+      r.pvcBoy1 ||
+      r.pvcBoy2 ||
+      r.pvcEn1 ||
+      r.pvcEn2
   );
 }
 

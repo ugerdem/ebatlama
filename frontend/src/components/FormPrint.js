@@ -16,11 +16,23 @@ export default function FormPrint({ form, compact = true }) {
       en1: source.en1 || '',
       adet: source.adet || '',
       boy2: source.boy2 || '',
-      en2: source.en2 || ''
+      en2: source.en2 || '',
+      pvcBoy1: source.pvcBoy1 === true,
+      pvcBoy2: source.pvcBoy2 === true,
+      pvcEn1: source.pvcEn1 === true,
+      pvcEn2: source.pvcEn2 === true
     };
   });
   const left = rows.slice(0, 22);
   const right = rows.slice(22, 44);
+
+  // Ölçü hücresinin yanına küçük X işareti (kenar PVC işaretliyse)
+  const dimCell = (val, flag) => (
+    <span>
+      {val || ''}
+      {flag ? <span className="edge-x"> X</span> : null}
+    </span>
+  );
 
   const renderTable = (slice, startNo) => (
     <table className="print-table">
@@ -42,11 +54,11 @@ export default function FormPrint({ form, compact = true }) {
             <td className="row-num">{startNo + idx}</td>
             <td style={{ textAlign: 'left', paddingLeft: 4 }}>{r.malzeme || ''}</td>
             <td>{r.pvc || ''}</td>
-            <td>{r.boy1 || ''}</td>
-            <td>{r.en1 || ''}</td>
+            <td>{dimCell(r.boy1, r.pvcBoy1)}</td>
+            <td>{dimCell(r.en1, r.pvcEn1)}</td>
             <td>{r.adet || ''}</td>
-            <td>{r.boy2 || ''}</td>
-            <td>{r.en2 || ''}</td>
+            <td>{dimCell(r.boy2 || r.boy1, r.pvcBoy2)}</td>
+            <td>{dimCell(r.en2 || r.en1, r.pvcEn2)}</td>
           </tr>
         ))}
       </tbody>
