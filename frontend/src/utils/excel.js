@@ -26,27 +26,31 @@ export function exportFormToExcel(form) {
   // Hücre değerinin sonuna kenar PVC işaretli ise " X" ekler
   const withX = (val, flag) => (flag ? `${val || ''} X` : val || '');
 
-  // Formdaki tablo yapısıyla birebir: Malzeme Cinsi (3 kolon) + PVC (2 kolon)
-  // üst başlık, alt satırda En / Boy / Adet / Boy (X) / En (X)
+  // Formdaki tablo yapısıyla birebir: Malzeme Cinsi (3 kolon) + PVC (4 kenar)
+  // üst başlık, alt satırda En / Boy / Adet / Boy 1 (X) / Boy 2 (X) / En 1 (X) / En 2 (X)
   const tableHeader = [
     'NO',
     'Malzeme Cinsi (En+Boy+Adet)',
-    'PVC (Boy+En)',
+    'PVC (4 kenar)',
     'En (mm)',
     'Boy (mm)',
     'Adet',
-    'Boy (X)',
-    'En (X)'
+    'Boy 1 (X)',
+    'Boy 2 (X)',
+    'En 1 (X)',
+    'En 2 (X)'
   ];
   const tableRows = rows.map((r, i) => [
     i + 1,
     r.malzeme || '',
     r.pvc || '',
-    withX(r.en1, r.pvcEn1),
-    withX(r.boy1, r.pvcBoy1),
+    r.en1 || '',
+    r.boy1 || '',
     r.adet || 0,
-    withX(r.boy2 || r.boy1, r.pvcBoy2),
-    withX(r.en2 || r.en1, r.pvcEn2)
+    withX(r.boy1, r.pvcBoy1),
+    withX(r.boy1, r.pvcBoy2),
+    withX(r.en1, r.pvcEn1),
+    withX(r.en1, r.pvcEn2)
   ]);
 
   const ws = XLSX.utils.aoa_to_sheet([...headerInfo, tableHeader, ...tableRows]);
@@ -55,12 +59,14 @@ export function exportFormToExcel(form) {
   ws['!cols'] = [
     { wch: 5 },  // NO
     { wch: 24 }, // Malzeme Cinsi
-    { wch: 14 }, // PVC
-    { wch: 10 }, // En
-    { wch: 10 }, // Boy
-    { wch: 8 },  // Adet
-    { wch: 10 }, // Boy (X)
-    { wch: 10 }  // En (X)
+    { wch: 18 }, // PVC
+    { wch: 9 },  // En
+    { wch: 9 },  // Boy
+    { wch: 7 },  // Adet
+    { wch: 10 }, // Boy 1 (X)
+    { wch: 10 }, // Boy 2 (X)
+    { wch: 10 }, // En 1 (X)
+    { wch: 10 }  // En 2 (X)
   ];
 
   const wb = XLSX.utils.book_new();

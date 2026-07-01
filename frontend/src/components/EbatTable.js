@@ -55,27 +55,31 @@ export default function EbatTable({
   const renderSlice = (slice, startNo) => (
     <table className="print-table ebat-table">
       <colgroup>
-        <col style={{ width: '6%' }} />   {/* No */}
-        <col style={{ width: '15%' }} />  {/* En 1 */}
-        <col style={{ width: '15%' }} />  {/* Boy 1 */}
-        <col style={{ width: '10%' }} />  {/* Adet */}
-        <col style={{ width: '15%' }} />  {/* Boy 2 */}
-        <col style={{ width: '15%' }} />  {/* En 2 */}
+        <col style={{ width: '5%' }} />   {/* No */}
+        <col style={{ width: '12%' }} />  {/* En (Malzeme) */}
+        <col style={{ width: '12%' }} />  {/* Boy (Malzeme) */}
+        <col style={{ width: '8%' }} />   {/* Adet (Malzeme) */}
+        <col style={{ width: '12%' }} />  {/* Boy 1 (PVC) */}
+        <col style={{ width: '12%' }} />  {/* Boy 2 (PVC) */}
+        <col style={{ width: '12%' }} />  {/* En 1 (PVC) */}
+        <col style={{ width: '12%' }} />  {/* En 2 (PVC) */}
         {renderActions ? <col style={{ width: '8%' }} /> : null}
       </colgroup>
       <thead>
         <tr>
           <th rowSpan="2">No</th>
           <th colSpan="3">Malzeme Cinsi</th>
-          <th colSpan="2">PVC</th>
+          <th colSpan="4">PVC</th>
           {renderActions ? <th rowSpan="2">İŞLEM</th> : null}
         </tr>
         <tr>
           <th>En (mm)</th>
           <th>Boy (mm)</th>
           <th>Adet</th>
-          <th>Boy (X)</th>
-          <th>En (X)</th>
+          <th>Boy 1 (X)</th>
+          <th>Boy 2 (X)</th>
+          <th>En 1 (X)</th>
+          <th>En 2 (X)</th>
         </tr>
       </thead>
       <tbody>
@@ -100,6 +104,8 @@ export default function EbatTable({
                 <td />
                 <td />
                 <td />
+                <td />
+                <td />
                 {renderActions ? <td /> : null}
               </tr>
             );
@@ -107,7 +113,7 @@ export default function EbatTable({
 
           return (
             <React.Fragment key={idx}>
-              {/* Üst satır: Malzeme Cinsi (3 kolon) + PVC (2 kolon) */}
+              {/* Üst satır: Malzeme Cinsi (3 kolon) + PVC tipi (4 kolon) */}
               <tr
                 className={clickable ? 'row-clickable row-meta' : 'row-meta'}
                 onClick={clickable ? () => onRowClick(realIdx) : undefined}
@@ -118,7 +124,7 @@ export default function EbatTable({
                 <td colSpan="3" className="cell-malzeme">
                   {r.malzeme}
                 </td>
-                <td colSpan="2" className="cell-pvc">
+                <td colSpan="4" className="cell-pvc">
                   {r.pvc}
                 </td>
                 {renderActions ? (
@@ -127,16 +133,18 @@ export default function EbatTable({
                   </td>
                 ) : null}
               </tr>
-              {/* Alt satır: 5 ölçü hücresi (No yukarıda rowspan ile birleşik) */}
+              {/* Alt satır: 3 malzeme ölçüsü + 4 kenar hücresi (her biri kendi X işareti) */}
               <tr
                 className={clickable ? 'row-clickable' : ''}
                 onClick={clickable ? () => onRowClick(realIdx) : undefined}
               >
-                <td><DimCell value={r.en1} flag={r.pvcEn1} /></td>
-                <td><DimCell value={r.boy1} flag={r.pvcBoy1} /></td>
+                <td><DimCell value={r.en1} flag={false} /></td>
+                <td><DimCell value={r.boy1} flag={false} /></td>
                 <td>{r.adet}</td>
-                <td><DimCell value={r.boy2 || r.boy1} flag={r.pvcBoy2} /></td>
-                <td><DimCell value={r.en2 || r.en1} flag={r.pvcEn2} /></td>
+                <td><DimCell value={r.boy1} flag={r.pvcBoy1} /></td>
+                <td><DimCell value={r.boy1} flag={r.pvcBoy2} /></td>
+                <td><DimCell value={r.en1} flag={r.pvcEn1} /></td>
+                <td><DimCell value={r.en1} flag={r.pvcEn2} /></td>
               </tr>
             </React.Fragment>
           );
