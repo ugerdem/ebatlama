@@ -16,7 +16,7 @@ const rowSchema = new mongoose.Schema(
 
 const formSchema = new mongoose.Schema(
   {
-    formNo: { type: String, required: true, unique: true, index: true },
+    formNo: { type: String, required: true, unique: true, index: true },   
 
     // Giriş yapan kullanıcı
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
