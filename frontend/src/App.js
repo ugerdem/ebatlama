@@ -32,11 +32,7 @@ function Shell() {
           />
           <Route
             path="/forms/new"
-            element={
-              <PrivateRoute>
-                <FormEntry />
-              </PrivateRoute>
-            }
+            element={<FormEntry />}
           />
           <Route
             path="/forms/:id"
@@ -48,11 +44,7 @@ function Shell() {
           />
           <Route
             path="/query"
-            element={
-              <PrivateRoute>
-                <FormQuery />
-              </PrivateRoute>
-            }
+            element={<FormQuery />}
           />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

@@ -36,9 +36,17 @@ export default function Header() {
               Çıkış
             </button>
           ) : (
-            <Link to="/login" className="btn secondary">
-              Giriş
-            </Link>
+            <>
+              <Link to="/forms/new" className="btn">
+                Yeni Form
+              </Link>
+              <Link to="/query" className="btn secondary">
+                Form Sorgula
+              </Link>
+              <Link to="/login" className="btn ghost" style={{ color: 'white' }}>
+                Giriş
+              </Link>
+            </>
           )}
         </div>
       </header>

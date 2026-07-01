@@ -1,38 +1,25 @@
 const express = require('express');
 const Form = require('../models/Form');
-const { authRequired, requireRole } = require('../middleware/auth');
+const { authRequired, authOptional, requireRole } = require('../middleware/auth');
 const { generateFormNo } = require('../utils/formNo');
 
 const router = express.Router();
 
-// Tüm route'lar auth ister
-router.use(authRequired);
+function getOwnerId(form) {
+  return form.createdBy ? form.createdBy.toString() : null;
+}
 
-// GET /api/forms  — giriş yapan kullanıcının formları (admin hepsini görür)
-router.get('/', async (req, res) => {
-  try {
-    const filter = req.user.role === 'admin' ? {} : { createdBy: req.user._id };
-    const list = await Form.find(filter).sort({ createdAt: -1 });
-    res.json(list.map((f) => f.toListJSON()));
-  } catch (err) {
-    res.status(500).json({ error: 'Listeleme hatası', detail: err.message });
-  }
-});
+function canAccessForm(form, user) {
+  if (!user) return false;
+  if (user.role === 'admin') return true;
+  return getOwnerId(form) === user._id.toString();
+}
 
-// GET /api/forms/query/:formNo  — herkes kendi formunu sorgulayabilir (formNo ile)
-// Bu auth'sız da çalışabilir ama session varsa onun da görmesine izin veriyoruz
+// Herkes kendi formunu sorgulayabilir; yetki kontrolü gerekmez
 router.get('/query/:formNo', async (req, res) => {
   try {
     const form = await Form.findOne({ formNo: req.params.formNo });
     if (!form) return res.status(404).json({ error: 'Form bulunamadı' });
-
-    // Kullanıcı kendi formunu veya admin tüm formları görebilir
-    if (
-      req.user.role !== 'admin' &&
-      form.createdBy.toString() !== req.user._id.toString()
-    ) {
-      return res.status(403).json({ error: 'Bu formu görme yetkiniz yok' });
-    }
 
     res.json({
       formNo: form.formNo,
@@ -49,34 +36,14 @@ router.get('/query/:formNo', async (req, res) => {
   }
 });
 
-// GET /api/forms/:id  — form detay
-router.get('/:id', async (req, res) => {
-  try {
-    const form = await Form.findById(req.params.id);
-    if (!form) return res.status(404).json({ error: 'Form bulunamadı' });
-
-    if (
-      req.user.role !== 'admin' &&
-      form.createdBy.toString() !== req.user._id.toString()
-    ) {
-      return res.status(403).json({ error: 'Bu formu görme yetkiniz yok' });
-    }
-
-    res.json(form);
-  } catch (err) {
-    res.status(500).json({ error: 'Detay hatası', detail: err.message });
-  }
-});
-
-// POST /api/forms  — yeni form oluştur
-router.post('/', async (req, res) => {
+// Form oluşturma login olmadan da yapılabilir; giriş yapmış kullanıcı varsa kayda bağlanır.
+router.post('/', authOptional, async (req, res) => {
   try {
     const { firma, telefon, yetkili, adres, pvcSecim, rows, notlar, formTarihi } = req.body || {};
     if (!firma || !telefon || !yetkili) {
       return res.status(400).json({ error: 'Firma, telefon ve yetkili zorunlu' });
     }
 
-    // rows dizisini 44 satıra tamamla
     const incomingRows = Array.isArray(rows) ? rows : [];
     const fullRows = Array.from({ length: 44 }, (_, i) => {
       const r = incomingRows[i] || {};
@@ -92,10 +59,11 @@ router.post('/', async (req, res) => {
     });
 
     const formNo = await generateFormNo();
+    const creatorId = req.user?._id || null;
 
     const form = await Form.create({
       formNo,
-      createdBy: req.user._id,
+      createdBy: creatorId,
       firma,
       telefon,
       yetkili,
@@ -110,7 +78,7 @@ router.post('/', async (req, res) => {
           durum: 'ilk_girildi',
           tarih: new Date(),
           aciklama: 'Form oluşturuldu',
-          kullanici: req.user._id
+          kullanici: creatorId
         }
       ]
     });
@@ -124,16 +92,44 @@ router.post('/', async (req, res) => {
   }
 });
 
+// Aşağıdaki route'lar yönetim amaçlıdır ve login ister
+router.use(authRequired);
+
+// GET /api/forms  — giriş yapan kullanıcının formları (admin hepsini görür)
+router.get('/', async (req, res) => {
+  try {
+    const filter = req.user.role === 'admin' ? {} : { createdBy: req.user._id };
+    const list = await Form.find(filter).sort({ createdAt: -1 });
+    res.json(list.map((f) => f.toListJSON()));
+  } catch (err) {
+    res.status(500).json({ error: 'Listeleme hatası', detail: err.message });
+  }
+});
+
+// GET /api/forms/:id  — form detay
+router.get('/:id', async (req, res) => {
+  try {
+    const form = await Form.findById(req.params.id);
+    if (!form) return res.status(404).json({ error: 'Form bulunamadı' });
+
+    if (!canAccessForm(form, req.user)) {
+      return res.status(403).json({ error: 'Bu formu görme yetkiniz yok' });
+    }
+
+    res.json(form);
+  } catch (err) {
+    res.status(500).json({ error: 'Detay hatası', detail: err.message });
+  }
+});
+
+// POST /api/forms  — yeni form oluştur
 // PUT /api/forms/:id  — form güncelle (sadece kendi formu, ve durum henüz tamamlanmamış)
 router.put('/:id', async (req, res) => {
   try {
     const form = await Form.findById(req.params.id);
     if (!form) return res.status(404).json({ error: 'Form bulunamadı' });
 
-    if (
-      req.user.role !== 'admin' &&
-      form.createdBy.toString() !== req.user._id.toString()
-    ) {
+    if (!canAccessForm(form, req.user)) {
       return res.status(403).json({ error: 'Bu formu düzenleme yetkiniz yok' });
     }
     if (form.durum === 'tamamlandi') {
@@ -182,7 +178,7 @@ router.patch('/:id/status', async (req, res) => {
     if (!form) return res.status(404).json({ error: 'Form bulunamadı' });
 
     // Yalnızca admin durum güncelleyebilir (form sahibi sadece kendi ilk_girildi → tekrar ilk_girildi yapabilir)
-    const isOwner = form.createdBy.toString() === req.user._id.toString();
+    const isOwner = getOwnerId(form) === req.user._id.toString();
     if (req.user.role !== 'admin' && !isOwner) {
       return res.status(403).json({ error: 'Bu işlem için yetkiniz yok' });
     }

@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { queryForm, STATUS_LABEL } from '../utils/api';
 import { formatDateTime } from '../utils/helpers';
 
@@ -7,15 +8,17 @@ export default function FormQuery() {
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [searchParams] = useSearchParams();
+  const autoSearchDone = useRef(false);
 
-  async function submit(e) {
-    e.preventDefault();
-    if (!formNo.trim()) return;
+  async function runQuery(value) {
+    const trimmed = value.trim();
+    if (!trimmed) return;
     setError('');
     setResult(null);
     setLoading(true);
     try {
-      const { data } = await queryForm(formNo.trim().toUpperCase());
+      const { data } = await queryForm(trimmed.toUpperCase());
       setResult(data);
     } catch (err) {
       if (err.response?.status === 404) {
@@ -28,6 +31,19 @@ export default function FormQuery() {
     } finally {
       setLoading(false);
     }
+  }
+
+  useEffect(() => {
+    const initial = (searchParams.get('formNo') || '').trim();
+    if (!initial || autoSearchDone.current) return;
+    autoSearchDone.current = true;
+    setFormNo(initial.toUpperCase());
+    runQuery(initial);
+  }, [searchParams]);
+
+  async function submit(e) {
+    e.preventDefault();
+    await runQuery(formNo);
   }
 
   return (

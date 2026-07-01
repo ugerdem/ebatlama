@@ -19,7 +19,7 @@ const formSchema = new mongoose.Schema(
     formNo: { type: String, required: true, unique: true, index: true },   
 
     // Giriş yapan kullanıcı
-    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
 
     // Firma bilgileri (formun üst kısmı)
     firma: { type: String, required: true, trim: true },

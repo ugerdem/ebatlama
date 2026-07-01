@@ -3,9 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { createForm } from '../utils/api';
 import { PVC_OPTIONS, makeEmptyRows, validateForm, compactRows } from '../utils/helpers';
 import Toast from './Toast';
+import { useAuth } from './AuthContext';
 
 export default function FormEntry() {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const [form, setForm] = useState({
     firma: '',
@@ -74,7 +76,13 @@ export default function FormEntry() {
         type: 'success',
         message: `Form oluşturuldu. Form No: ${data.formNo}`
       });
-      setTimeout(() => navigate(`/forms/${data.id}`), 800);
+      setTimeout(() => {
+        if (user) {
+          navigate(`/forms/${data.id}`);
+        } else {
+          navigate(`/query?formNo=${encodeURIComponent(data.formNo)}`);
+        }
+      }, 800);
     } catch (err) {
       setToast({ type: 'error', message: err.response?.data?.error || 'Kayıt hatası' });
     } finally {
@@ -200,7 +208,7 @@ export default function FormEntry() {
           <button
             type="button"
             className="btn secondary"
-            onClick={() => navigate('/')}
+            onClick={() => navigate(user ? '/' : '/login')}
           >
             İptal
           </button>
