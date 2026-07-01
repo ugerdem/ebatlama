@@ -7,7 +7,18 @@ import { formatDate } from '../utils/helpers';
 export default function FormPrint({ form, compact = true }) {
   if (!form) return null;
 
-  const rows = form.rows || [];
+  const rows = Array.from({ length: 44 }, (_, idx) => {
+    const source = (form.rows || [])[idx] || {};
+    return {
+      malzeme: source.malzeme || '',
+      pvc: source.pvc || '',
+      boy1: source.boy1 || '',
+      en1: source.en1 || '',
+      adet: source.adet || '',
+      boy2: source.boy2 || '',
+      en2: source.en2 || ''
+    };
+  });
   const left = rows.slice(0, 22);
   const right = rows.slice(22, 44);
 
@@ -49,13 +60,14 @@ export default function FormPrint({ form, compact = true }) {
     <div className="print-page">
       <div className="print-header">
         <div className="print-logo">MT</div>
-        <div style={{ flex: 1 }}>
-          <div className="print-title">
-            MEŞE TASARIM VE AHŞAP ÜRÜNLERİ SAN. TİC. LTD. ŞTİ.
+        <div className="print-brand-block">
+          <div className="print-title">MEŞE TASARIM</div>
+          <div className="print-subtitle print-subtitle-strong">
+            VE AHŞAP ÜRÜNLERİ SAN. TİC. LTD. ŞTİ.
           </div>
-          <div className="print-subtitle">FASON İŞLEME MERKEZİ — EBATLAMA VE BANTLAMA FORMU</div>
-          <div className="print-subtitle">
-            * EBATLAMA VE BANTLAMA * MDFLAM-SAUTALAM * MASİFPANEL * PVC ÇEŞİTLERİ *
+          <div className="print-mainline">FASON İŞLEME MERKEZİ</div>
+          <div className="print-subtitle print-subtitle-accent">
+            KALİTELİ VE HIZLI CNC FASON KESİM &amp; BANTLAMA MERKEZİ
           </div>
         </div>
         <div className="print-contact">
@@ -69,15 +81,15 @@ export default function FormPrint({ form, compact = true }) {
       </div>
 
       <div className="print-info">
-        <div className="cell">
+        <div className="cell cell-grow">
           <span className="label">Tarih:</span>
           <span className="value">{printDate}</span>
         </div>
-        <div className="cell">
+        <div className="cell cell-mid">
           <span className="label">Form No:</span>
           <span className="value">{form.formNo}</span>
         </div>
-        <div className="cell">
+        <div className="cell cell-mid">
           <span className="label">Durum:</span>
           <span className="value">{STATUS_LABEL[form.durum] || form.durum}</span>
         </div>
@@ -85,19 +97,19 @@ export default function FormPrint({ form, compact = true }) {
 
       <div className="print-info">
         <div className="cell" style={{ flex: 1 }}>
-          <span className="label">FİRMA:</span>
+          <span className="label">FİRMA</span>
           <span className="value" style={{ flex: 1 }}>
             {form.firma}
           </span>
         </div>
         <div className="cell" style={{ flex: 1 }}>
-          <span className="label">TELEFON:</span>
+          <span className="label">TELEFON NO</span>
           <span className="value" style={{ flex: 1 }}>
             {form.telefon}
           </span>
         </div>
         <div className="cell">
-          <span className="label">YETKİLİ:</span>
+          <span className="label">YETKİLİ</span>
           <span className="value">{form.yetkili}</span>
         </div>
       </div>
@@ -115,7 +127,7 @@ export default function FormPrint({ form, compact = true }) {
 
       <div className="print-info">
         <div className="cell" style={{ flex: 1 }}>
-          <span className="label">PVC SEÇİMİ:</span>
+          <span className="label">PVC SEÇİMİ</span>
           <span className="value" style={{ flex: 1 }}>
             {pvcList}
           </span>
