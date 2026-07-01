@@ -1,7 +1,20 @@
 // Form numarası üretici: MT-YYYYMMDD-XXXX (günlük sıralı)
 // Örnek: MT-20260701-0001
 
-const Counter = require('mongoose').model('Counter');
+const mongoose = require('mongoose');
+
+function getCounterModel() {
+  return (
+    mongoose.models.Counter ||
+    mongoose.model(
+      'Counter',
+      new mongoose.Schema({
+        _id: String,
+        seq: { type: Number, default: 0 }
+      })
+    )
+  );
+}
 
 async function generateFormNo() {
   const now = new Date();
@@ -11,15 +24,7 @@ async function generateFormNo() {
   const dateKey = `${yyyy}${mm}${dd}`;
   const prefix = `MT-${dateKey}-`;
 
-  const Counter =
-    require('mongoose').models.Counter ||
-    require('mongoose').model(
-      'Counter',
-      new require('mongoose').Schema({
-        _id: String,
-        seq: { type: Number, default: 0 }
-      })
-    );
+  const Counter = getCounterModel();
 
   const result = await Counter.findByIdAndUpdate(
     dateKey,
