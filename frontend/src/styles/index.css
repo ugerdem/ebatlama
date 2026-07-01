@@ -280,6 +280,11 @@ table.data tr:hover { background: #f8fafc; }
   z-index: 1;
 }
 .modal-body { padding: 20px; }
+.modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
 .modal-close {
   border: none;
   background: transparent;
@@ -389,6 +394,11 @@ table.data tr:hover { background: #f8fafc; }
   margin-top: 18px;
 }
 
+.row-modal-actions .btn {
+  min-width: 120px;
+  justify-content: center;
+}
+
 .row-summary-list {
   display: grid;
   gap: 12px;
@@ -455,6 +465,37 @@ table.data tr:hover { background: #f8fafc; }
   gap: 8px;
   margin-top: 12px;
   flex-wrap: wrap;
+}
+
+@media (max-width: 820px) {
+  .modal {
+    max-width: calc(100vw - 24px);
+    max-height: calc(100vh - 24px);
+  }
+
+  .modal-header,
+  .modal-body {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .row-form-grid-primary,
+  .row-form-grid-secondary,
+  .row-check-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .row-check-card {
+    min-height: auto;
+  }
+
+  .row-modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .row-modal-actions .btn {
+    width: 100%;
+  }
 }
 
 /* Login */
