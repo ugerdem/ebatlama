@@ -129,6 +129,15 @@ button {
   box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.15);
 }
 
+.single-line-textarea {
+  min-height: 42px;
+  max-height: 42px;
+  resize: none;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
 /* Buttons */
 .btn {
   display: inline-flex;
