@@ -1,26 +1,30 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "backend/server.js",
-      "use": "@vercel/node"
+  "services": {
+    "frontend": {
+      "root": "frontend",
+      "framework": "create-react-app",
+      "installCommand": "npm install",
+      "buildCommand": "npm run build",
+      "outputDirectory": "build"
     },
-    {
-      "src": "frontend/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "build"
-      }
+    "backend": {
+      "root": "backend",
+      "framework": "express",
+      "installCommand": "npm install"
     }
-  ],
+  },
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "backend/server.js"
+      "destination": {
+        "service": "backend"
+      }
     },
     {
       "source": "/(.*)",
-      "destination": "/frontend/build/index.html"
+      "destination": {
+        "service": "frontend"
+      }
     }
   ]
 }
