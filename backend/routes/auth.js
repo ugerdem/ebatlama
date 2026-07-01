@@ -13,6 +13,14 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ error: 'Kullanıcı adı ve şifre gerekli' });
     }
 
+    const jwtSecret = process.env.JWT_SECRET?.trim();
+    if (!jwtSecret) {
+      return res.status(503).json({
+        error: 'JWT secret yapılandırılmamış',
+        detail: 'JWT_SECRET environment variable is not set'
+      });
+    }
+
     const user = await User.findOne({ username: username.toLowerCase().trim() });
     if (!user || !user.active) {
       return res.status(401).json({ error: 'Kullanıcı bulunamadı veya pasif' });
@@ -22,14 +30,14 @@ router.post('/login', async (req, res) => {
     if (!ok) return res.status(401).json({ error: 'Hatalı şifre' });
 
     // Legacy düz metin şifreyi ilk başarılı girişte bcrypt'e yükselt
-    if (!user.password.startsWith('$2a$') && !user.password.startsWith('$2b$') && !user.password.startsWith('$2y$')) {
+    if (typeof user.password === 'string' && !user.password.startsWith('$2a$') && !user.password.startsWith('$2b$') && !user.password.startsWith('$2y$')) {
       user.password = password;
       await user.save();
     }
 
     const token = jwt.sign(
       { id: user._id, role: user.role },
-      process.env.JWT_SECRET,
+      jwtSecret,
       { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
     );
 
