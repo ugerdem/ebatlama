@@ -191,6 +191,10 @@ Vercel Dashboard → Settings → Environment Variables:
 | SEED_ADMIN_PASSWORD | admin123 |
 | SEED_ADMIN_NAME | Sistem Yöneticisi |
 
+Frontend aynı Vercel projesinde deploy edildiğinde API adresi için ekstra env gerekmez; uygulama `/api` üzerinden backend'e gider. Ayrı bir frontend domain'i kullanacaksanız `REACT_APP_API_URL` değerini tam API adresiyle değiştirin.
+
+İsterseniz kökteki `vercel.env.example`, backend'deki `backend/.env.example` ve frontend'deki `frontend/.env.example` dosyalarını temel alıp aynı değişkenleri kopyalayabilirsiniz.
+
 ### 4) Deploy
 
 ```bash
