@@ -1,69 +1,12 @@
 import React from 'react';
 import { STATUS_LABEL } from '../utils/api';
 import { formatDate } from '../utils/helpers';
+import EbatTable from './EbatTable';
 
 // Hem ekranda önizleme hem yazdırma için kullanılan A4 çıktısı.
 // pdf export: tarayıcı print → PDF kaydet (A4 boyutunda).
 export default function FormPrint({ form, compact = true }) {
   if (!form) return null;
-
-  const rows = Array.from({ length: 44 }, (_, idx) => {
-    const source = (form.rows || [])[idx] || {};
-    return {
-      malzeme: source.malzeme || '',
-      pvc: source.pvc || '',
-      boy1: source.boy1 || '',
-      en1: source.en1 || '',
-      adet: source.adet || '',
-      boy2: source.boy2 || '',
-      en2: source.en2 || '',
-      pvcBoy1: source.pvcBoy1 === true,
-      pvcBoy2: source.pvcBoy2 === true,
-      pvcEn1: source.pvcEn1 === true,
-      pvcEn2: source.pvcEn2 === true
-    };
-  });
-  const left = rows.slice(0, 22);
-  const right = rows.slice(22, 44);
-
-  // Ölçü hücresinin yanına küçük X işareti (kenar PVC işaretliyse)
-  const dimCell = (val, flag) => (
-    <span>
-      {val || ''}
-      {flag ? <span className="edge-x"> X</span> : null}
-    </span>
-  );
-
-  const renderTable = (slice, startNo) => (
-    <table className="print-table">
-      <thead>
-        <tr>
-          <th style={{ width: 24 }}>NO</th>
-          <th>MALZEMENİN CİNSİ</th>
-          <th>PVC</th>
-          <th>BOY</th>
-          <th>EN</th>
-          <th>ADET</th>
-          <th>BOY</th>
-          <th>EN</th>
-        </tr>
-      </thead>
-      <tbody>
-        {slice.map((r, idx) => (
-          <tr key={idx}>
-            <td className="row-num">{startNo + idx}</td>
-            <td style={{ textAlign: 'left', paddingLeft: 4 }}>{r.malzeme || ''}</td>
-            <td>{r.pvc || ''}</td>
-            <td>{dimCell(r.boy1, r.pvcBoy1)}</td>
-            <td>{dimCell(r.en1, r.pvcEn1)}</td>
-            <td>{r.adet || ''}</td>
-            <td>{dimCell(r.boy2 || r.boy1, r.pvcBoy2)}</td>
-            <td>{dimCell(r.en2 || r.en1, r.pvcEn2)}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  );
 
   const printDate = formatDate(form.formTarihi || form.createdAt);
   const pvcList = (form.pvcSecim || []).join(' • ') || '—';
@@ -147,8 +90,7 @@ export default function FormPrint({ form, compact = true }) {
       </div>
 
       <div className="print-tables-wrap">
-        {renderTable(left, 1)}
-        {renderTable(right, 23)}
+        <EbatTable rows={form.rows} />
       </div>
 
       {form.notlar && (

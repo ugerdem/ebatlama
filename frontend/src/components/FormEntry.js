@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { createForm } from '../utils/api';
 import { PVC_OPTIONS, validateForm, compactRows } from '../utils/helpers';
 import Toast from './Toast';
+import EbatTable from './EbatTable';
 import { useAuth } from './AuthContext';
 
 export default function FormEntry() {
@@ -285,53 +286,24 @@ export default function FormEntry() {
             </button>
           </div>
           <div className="alert info" style={{ marginTop: 12 }}>
-            Dolu kayıt sayısı: <strong>{compactRows(form.rows).length}</strong>
+            Dolu kayıt sayısı: <strong>{compactRows(form.rows).length}</strong> / 44 —
+            Satıra tıklayarak düzenleyebilir, sağdaki butonla silebilirsiniz.
           </div>
 
-          {form.rows.length === 0 ? (
-            <div className="empty-state" style={{ marginTop: 12 }}>
-              <h3>Henüz kayıt yok</h3>
-              <p>Her satır için popup açıp malzeme, PVC ve mm bilgilerini girin.</p>
-            </div>
-          ) : (
-            <div className="row-summary-list">
-              {form.rows.map((row, idx) => (
-                <div className="row-summary-card" key={`${row.malzeme}-${idx}`}>
-                  <div className="row-summary-top">
-                    <div>
-                      <div className="row-summary-title">{idx + 1}. kayıt</div>
-                      <div className="row-summary-main">{row.malzeme}</div>
-                    </div>
-                    <span className="badge isleme_alindi row-summary-badge">{row.pvc || 'PVC yok'}</span>
-                  </div>
-                  <div className="row-summary-meta">
-                    <span><strong>Boy:</strong> {row.boy1} mm</span>
-                    <span><strong>En:</strong> {row.en1} mm</span>
-                    <span><strong>Adet:</strong> {row.adet}</span>
-                    <span className="row-summary-edges">
-                      <strong>PVC Kenarları:</strong>{' '}
-                      {[
-                        row.pvcBoy1 && 'Üst',
-                        row.pvcEn1 && 'Sol',
-                        row.pvcEn2 && 'Sağ',
-                        row.pvcBoy2 && 'Alt'
-                      ]
-                        .filter(Boolean)
-                        .join(' • ') || 'Yok'}
-                    </span>
-                  </div>
-                  <div className="row-summary-actions">
-                    <button type="button" className="btn secondary" onClick={() => openEditRowModal(idx)}>
-                      Düzenle
-                    </button>
-                    <button type="button" className="btn danger" onClick={() => deleteRow(idx)}>
-                      Sil
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+          <EbatTable
+            rows={form.rows}
+            onRowClick={(idx) => openEditRowModal(idx)}
+            renderActions={(idx) => (
+              <button
+                type="button"
+                className="btn danger btn-xs"
+                onClick={() => deleteRow(idx)}
+                title="Satırı sil"
+              >
+                Sil
+              </button>
+            )}
+          />
         </div>
 
         <div className="btn-row" style={{ marginTop: 20 }}>
