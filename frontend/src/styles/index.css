@@ -301,13 +301,19 @@ table.data tr:hover { background: #f8fafc; }
 }
 
 .modal-section {
-  margin-top: 18px;
-  padding-top: 16px;
+  margin-top: 16px;
+  padding-top: 14px;
   border-top: 1px solid #e2e8f0;
 }
 
+.modal-section:first-of-type {
+  border-top: none;
+  padding-top: 0;
+  margin-top: 4px;
+}
+
 .section-caption {
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   font-size: 12px;
   font-weight: 800;
   color: #0f766e;
@@ -321,70 +327,51 @@ table.data tr:hover { background: #f8fafc; }
   gap: 12px;
 }
 
-.row-form-grid-primary {
-  grid-template-columns: 1.4fr 1fr 0.8fr 0.8fr 0.6fr;
+.dim-toggle-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
 }
 
-.row-form-grid-secondary {
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+.dim-toggle-block {
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 12px 14px;
+  background: #f8fafc;
+}
+
+.dim-toggle-header {
+  font-size: 12px;
+  font-weight: 800;
+  color: #0f766e;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.dim-checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.dim-checkbox-row input {
+  width: 18px;
+  height: 18px;
+  accent-color: #0f766e;
+}
+
+.dim-checkbox-row span {
+  font-size: 14px;
+  color: #0f172a;
 }
 
 .row-dimension-hint {
   margin-top: 10px;
   font-size: 12px;
   color: #64748b;
-}
-
-.row-check-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 12px;
-  margin-top: 14px;
-}
-
-.row-check-card {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 16px;
-  border: 1px solid #cbd5e1;
-  border-radius: 12px;
-  background: #f8fafc;
-  cursor: pointer;
-  min-height: 76px;
-  transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
-}
-
-.row-check-card:hover {
-  border-color: #0f766e;
-  box-shadow: 0 8px 20px rgba(15, 118, 110, 0.08);
-  transform: translateY(-1px);
-}
-
-.row-check-card input {
-  width: 18px;
-  height: 18px;
-  accent-color: #0f766e;
-  flex-shrink: 0;
-  margin-top: 2px;
-}
-
-.row-check-card span {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  line-height: 1.35;
-}
-
-.row-check-card strong {
-  font-size: 14px;
-  color: #0f172a;
-}
-
-.row-check-card small {
-  font-size: 12px;
-  color: #64748b;
-  line-height: 1.35;
 }
 
 .row-modal-actions {
@@ -479,14 +466,9 @@ table.data tr:hover { background: #f8fafc; }
     padding-right: 14px;
   }
 
-  .row-form-grid-primary,
-  .row-form-grid-secondary,
-  .row-check-grid {
+  .row-form-grid,
+  .dim-toggle-grid {
     grid-template-columns: 1fr;
-  }
-
-  .row-check-card {
-    min-height: auto;
   }
 
   .row-modal-actions {

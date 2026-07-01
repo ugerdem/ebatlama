@@ -40,6 +40,11 @@ export default function FormEntry() {
     setForm((f) => ({ ...f, [field]: value }));
   }
 
+  // mm / adet gibi sayısal alanlara sadece rakam girişi için filtre
+  function onlyDigits(v) {
+    return String(v == null ? '' : v).replace(/[^\d]/g, '');
+  }
+
   function openNewRowModal() {
     setEditingIndex(null);
     setRowErrors([]);
@@ -355,9 +360,9 @@ export default function FormEntry() {
             </div>
             <div className="modal-body">
               <p className="modal-intro">
-                Tüm ölçüler milimetre cinsinden girilir. PVC seçin, ardından 1. boy / 1. en ve
-                gerekiyorsa 2. boy / 2. en için kutuları işaretleyin.
+                Tüm ölçüler milimetre cinsinden ve sadece rakam olarak girilir.
               </p>
+
               {rowErrors.length > 0 && (
                 <div className="alert error">
                   {rowErrors.map((e, i) => (
@@ -366,131 +371,144 @@ export default function FormEntry() {
                 </div>
               )}
 
+              {/* 1. Malzeme Cinsi */}
               <div className="modal-section">
-                <div className="section-caption">Temel Bilgiler</div>
-                <div className="row-form-grid row-form-grid-primary">
-                  <div className="field">
-                    <label>Malzeme Cinsi *</label>
-                    <input
-                      value={rowDraft.malzeme}
-                      onChange={(e) => updateRowDraft('malzeme', e.target.value)}
-                      placeholder="Örn: MDFLAM, SAUTALAM, Masif Panel"
-                    />
-                  </div>
+                <div className="section-caption">1. Malzeme</div>
+                <div className="field">
+                  <label>Malzeme Cinsi *</label>
+                  <input
+                    value={rowDraft.malzeme}
+                    onChange={(e) => updateRowDraft('malzeme', e.target.value)}
+                    placeholder="Örn: MDFLAM, SAUTALAM, Masif Panel"
+                  />
+                </div>
+              </div>
 
+              {/* 2. En / Boy (mm) */}
+              <div className="modal-section">
+                <div className="section-caption">2. Ölçüler (mm)</div>
+                <div className="row-form-grid">
                   <div className="field">
-                    <label>PVC Tipi *</label>
-                    <select
-                      value={rowDraft.pvc}
-                      onChange={(e) => updateRowDraft('pvc', e.target.value)}
-                    >
-                      <option value="">Seçiniz</option>
-                      {PVC_OPTIONS.map((o) => (
-                        <option key={o} value={o}>
-                          {o}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="field">
-                    <label>1. Boy (mm) *</label>
-                    <input
-                      value={rowDraft.boy1}
-                      onChange={(e) => updateRowDraft('boy1', e.target.value)}
-                      placeholder="mm"
-                      inputMode="numeric"
-                    />
-                  </div>
-
-                  <div className="field">
-                    <label>1. En (mm) *</label>
+                    <label>En (mm) *</label>
                     <input
                       value={rowDraft.en1}
-                      onChange={(e) => updateRowDraft('en1', e.target.value)}
+                      onChange={(e) => updateRowDraft('en1', onlyDigits(e.target.value))}
                       placeholder="mm"
                       inputMode="numeric"
+                      pattern="[0-9]*"
                     />
                   </div>
-
-                  <div className="field">
-                    <label>ADET *</label>
-                    <input
-                      type="number"
-                      min="1"
-                      value={rowDraft.adet}
-                      onChange={(e) => updateRowDraft('adet', e.target.value)}
-                      placeholder="1"
-                    />
-                  </div>
-
-                  <div className="row-dimension-hint">
-                    Ölçüler mm cinsinden girilir.
-                  </div>
-                </div>
-
-                <div className="modal-section">
-                  <div className="section-caption">İkinci Ölçüler</div>
-                  <div className="row-check-grid">
-                    <label className="row-check-card">
+                  {rowDraft.useEn2 && (
+                    <div className="field">
+                      <label>2. En (mm)</label>
                       <input
-                        type="checkbox"
-                        checked={rowDraft.useBoy2}
-                        onChange={(e) => updateRowDraft('useBoy2', e.target.checked)}
+                        value={rowDraft.en2}
+                        onChange={(e) => updateRowDraft('en2', onlyDigits(e.target.value))}
+                        placeholder="mm"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
                       />
-                      <span>
-                        <strong>2. Boy</strong>
-                        <small>Ek boy ölçüsü girmek için işaretleyin</small>
-                      </span>
-                    </label>
+                    </div>
+                  )}
+                  <div className="field">
+                    <label>Boy (mm) *</label>
+                    <input
+                      value={rowDraft.boy1}
+                      onChange={(e) => updateRowDraft('boy1', onlyDigits(e.target.value))}
+                      placeholder="mm"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                    />
+                  </div>
+                  {rowDraft.useBoy2 && (
+                    <div className="field">
+                      <label>2. Boy (mm)</label>
+                      <input
+                        value={rowDraft.boy2}
+                        onChange={(e) => updateRowDraft('boy2', onlyDigits(e.target.value))}
+                        placeholder="mm"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
 
-                    <label className="row-check-card">
+              {/* 3. PVC Tipi */}
+              <div className="modal-section">
+                <div className="section-caption">3. PVC</div>
+                <div className="field">
+                  <label>PVC Tipi *</label>
+                  <select
+                    value={rowDraft.pvc}
+                    onChange={(e) => updateRowDraft('pvc', e.target.value)}
+                  >
+                    <option value="">Seçiniz</option>
+                    {PVC_OPTIONS.map((o) => (
+                      <option key={o} value={o}>
+                        {o}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* 4. İkinci Ölçü toggle — En / Boy başlıkları + 2 checkbox */}
+              <div className="modal-section">
+                <div className="section-caption">4. İkinci Ölçü</div>
+                <div className="dim-toggle-grid">
+                  <div className="dim-toggle-block">
+                    <div className="dim-toggle-header">En</div>
+                    <label className="dim-checkbox-row">
                       <input
                         type="checkbox"
                         checked={rowDraft.useEn2}
                         onChange={(e) => updateRowDraft('useEn2', e.target.checked)}
                       />
-                      <span>
-                        <strong>2. En</strong>
-                        <small>Ek en ölçüsü girmek için işaretleyin</small>
-                      </span>
+                      <span>2. En ekle</span>
                     </label>
                   </div>
-
-                  <div className="row-form-grid row-form-grid-secondary" style={{ marginTop: 14 }}>
-                    {rowDraft.useBoy2 && (
-                      <div className="field">
-                        <label>2. Boy (mm)</label>
-                        <input
-                          value={rowDraft.boy2}
-                          onChange={(e) => updateRowDraft('boy2', e.target.value)}
-                          placeholder="mm"
-                          inputMode="numeric"
-                        />
-                      </div>
-                    )}
-                    {rowDraft.useEn2 && (
-                      <div className="field">
-                        <label>2. En (mm)</label>
-                        <input
-                          value={rowDraft.en2}
-                          onChange={(e) => updateRowDraft('en2', e.target.value)}
-                          placeholder="mm"
-                          inputMode="numeric"
-                        />
-                      </div>
-                    )}
+                  <div className="dim-toggle-block">
+                    <div className="dim-toggle-header">Boy</div>
+                    <label className="dim-checkbox-row">
+                      <input
+                        type="checkbox"
+                        checked={rowDraft.useBoy2}
+                        onChange={(e) => updateRowDraft('useBoy2', e.target.checked)}
+                      />
+                      <span>2. Boy ekle</span>
+                    </label>
                   </div>
                 </div>
+              </div>
 
-                <div className="row-modal-actions">
-                  <button type="button" className="btn secondary" onClick={closeRowModal}>
-                    İptal
-                  </button>
-                  <button type="button" className="btn" onClick={saveRow}>
-                    {editingIndex === null ? 'Satırı Ekle' : 'Güncelle'}
-                  </button>
+              {/* 5. Adet — her şeyin altında */}
+              <div className="modal-section">
+                <div className="section-caption">5. Adet</div>
+                <div className="field">
+                  <label>Adet *</label>
+                  <input
+                    type="number"
+                    min="1"
+                    step="1"
+                    value={rowDraft.adet}
+                    onChange={(e) => updateRowDraft('adet', onlyDigits(e.target.value))}
+                    onKeyDown={(e) => {
+                      if (['e', 'E', '+', '-', '.'].includes(e.key)) e.preventDefault();
+                    }}
+                    placeholder="1"
+                  />
                 </div>
+              </div>
+
+              <div className="row-modal-actions">
+                <button type="button" className="btn secondary" onClick={closeRowModal}>
+                  İptal
+                </button>
+                <button type="button" className="btn" onClick={saveRow}>
+                  {editingIndex === null ? 'Satırı Ekle' : 'Güncelle'}
+                </button>
               </div>
             </div>
           </div>
