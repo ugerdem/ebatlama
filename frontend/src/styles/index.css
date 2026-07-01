@@ -288,11 +288,46 @@ table.data tr:hover { background: #f8fafc; }
   cursor: pointer;
 }
 
+.modal-intro {
+  margin: 0;
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.modal-section {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.section-caption {
+  margin-bottom: 12px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #0f766e;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
 .row-form-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 12px;
-  margin-top: 16px;
+}
+
+.row-form-grid-primary {
+  grid-template-columns: 1.4fr 1fr 0.8fr 0.8fr 0.6fr;
+}
+
+.row-form-grid-secondary {
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.row-dimension-hint {
+  margin-top: 10px;
+  font-size: 12px;
+  color: #64748b;
 }
 
 .row-check-grid {
@@ -304,13 +339,21 @@ table.data tr:hover { background: #f8fafc; }
 
 .row-check-card {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 12px;
-  padding: 14px;
+  padding: 16px;
   border: 1px solid #cbd5e1;
   border-radius: 12px;
   background: #f8fafc;
   cursor: pointer;
+  min-height: 76px;
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+}
+
+.row-check-card:hover {
+  border-color: #0f766e;
+  box-shadow: 0 8px 20px rgba(15, 118, 110, 0.08);
+  transform: translateY(-1px);
 }
 
 .row-check-card input {
@@ -318,12 +361,14 @@ table.data tr:hover { background: #f8fafc; }
   height: 18px;
   accent-color: #0f766e;
   flex-shrink: 0;
+  margin-top: 2px;
 }
 
 .row-check-card span {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  line-height: 1.35;
 }
 
 .row-check-card strong {
@@ -398,6 +443,10 @@ table.data tr:hover { background: #f8fafc; }
   border: 1px solid #e2e8f0;
   border-radius: 999px;
   padding: 6px 10px;
+}
+
+.row-summary-meta strong {
+  color: #0f172a;
 }
 
 .row-summary-actions {
