@@ -21,6 +21,12 @@ router.post('/login', async (req, res) => {
     const ok = await user.comparePassword(password);
     if (!ok) return res.status(401).json({ error: 'Hatalı şifre' });
 
+    // Legacy düz metin şifreyi ilk başarılı girişte bcrypt'e yükselt
+    if (!user.password.startsWith('$2a$') && !user.password.startsWith('$2b$') && !user.password.startsWith('$2y$')) {
+      user.password = password;
+      await user.save();
+    }
+
     const token = jwt.sign(
       { id: user._id, role: user.role },
       process.env.JWT_SECRET,

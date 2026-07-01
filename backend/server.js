@@ -14,29 +14,50 @@ app.use(express.json({ limit: '2mb' }));
 // Vercel'de API olarak çalışırkenmanuel mongoose bağlantısı yerine
 // her istekte bağlantı kontrolü yapacağız
 let isConnected = false;
+let connectPromise = null;
 
 async function dbConnect() {
-  if (isConnected) return;
-  
+  if (isConnected) return true;
+
+  if (connectPromise) return connectPromise;
+
   const MONGO = process.env.MONGODB_URI;
   if (!MONGO) {
     console.error('MONGODB_URI environment variable is not set!');
-    return;
+    return false;
   }
-  
-  try {
-    await mongoose.connect(MONGO);
-    isConnected = true;
-    console.log('MongoDB bağlantısı başarılı');
-  } catch (err) {
-    console.error('MongoDB bağlantı hatası:', err.message);
-    isConnected = false;
-  }
+
+  connectPromise = mongoose
+    .connect(MONGO, {
+      serverSelectionTimeoutMS: 10000,
+      connectTimeoutMS: 10000
+    })
+    .then(() => {
+      isConnected = true;
+      console.log('MongoDB bağlantısı başarılı');
+      return true;
+    })
+    .catch((err) => {
+      console.error('MongoDB bağlantı hatası:', err.message);
+      isConnected = false;
+      return false;
+    })
+    .finally(() => {
+      connectPromise = null;
+    });
+
+  return connectPromise;
 }
 
 // Her API isteğinden önce veritabanı bağlantısını kontrol et
 app.use('/api', async (req, res, next) => {
-  await dbConnect();
+  const connected = await dbConnect();
+  if (!connected) {
+    return res.status(503).json({
+      error: 'Veritabanı bağlantısı kurulamadı',
+      detail: 'MONGODB_URI erişimi veya Atlas ağ izinlerini kontrol edin'
+    });
+  }
   next();
 });
 
@@ -73,7 +94,10 @@ if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
 
   async function start() {
     try {
-      await mongoose.connect(MONGO);
+      await mongoose.connect(MONGO, {
+        serverSelectionTimeoutMS: 10000,
+        connectTimeoutMS: 10000
+      });
       isConnected = true;
       console.log('MongoDB bağlantısı başarılı:', MONGO);
 

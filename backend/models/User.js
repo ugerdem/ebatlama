@@ -19,7 +19,15 @@ userSchema.pre('save', async function (next) {
 });
 
 userSchema.methods.comparePassword = function (plain) {
-  return bcrypt.compare(plain, this.password);
+  if (!this.password) return false;
+
+  // Legacy kullanıcı kayıtları plain text olarak kalmış olabilir.
+  // Bcrypt hash ise normal karşılaştırma yap, değilse düz metin eşleşmesini dene.
+  if (this.password.startsWith('$2a$') || this.password.startsWith('$2b$') || this.password.startsWith('$2y$')) {
+    return bcrypt.compare(plain, this.password);
+  }
+
+  return plain === this.password;
 };
 
 userSchema.methods.toSafeJSON = function () {
