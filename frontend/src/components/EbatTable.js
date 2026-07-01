@@ -1,9 +1,16 @@
 import React from 'react';
 
 // Hem önizleme, hem yazdırma, hem veri giriş ekranında kullanılan
-// 44 satırlık ebat tablosu. Satır başına 8 hücre: NO, MALZEME, PVC,
-// BOY (kenar 1), EN (kenar 1), ADET, BOY (kenar 2), EN (kenar 2).
-// Kenar PVC işaretliyse hücrenin yanında yeşil X rozeti gösterilir.
+// ebat tablosu. El yazısı formattakiyle birebir aynı:
+//
+//   ┌────┬──────────── Malzeme Cinsi ────────────┬────── PVC ──────┐
+//   │ No │ En (mm) │ Boy (mm) │ Adet │ Boy (X) │ En (X) │
+//   ├────┼─────────┼──────────┼──────┼─────────┼────────┤
+//   │  1 │   22    │    22    │  1   │   X     │   X    │
+//
+// Her dolu satır iki görsel <tr> kullanır: üst satırda Malzeme Cinsi
+// (3 kolon) + PVC (2 kolon) hücreleri, alt satırda 6 ölçü değeri.
+// Boş satırlar tek satır, sadece No + boş hücreler.
 const TOTAL_ROWS = 44;
 const HALF = TOTAL_ROWS / 2;
 
@@ -36,9 +43,9 @@ const DimCell = ({ value, flag }) => (
 
 export default function EbatTable({
   rows,
-  // opsiyonel: her satıra tıklanınca çağrılır (örn. düzenlemek için)
+  // opsiyonel: her dolu satıra tıklayınca çağrılır
   onRowClick,
-  // opsiyonel: her satırın sonuna küçük aksiyon hücresi ekler
+  // opsiyonel: her satırın solunda küçük işlem hücresi (Sil butonu vs.)
   renderActions
 }) {
   const data = makeRows(rows);
@@ -47,45 +54,91 @@ export default function EbatTable({
 
   const renderSlice = (slice, startNo) => (
     <table className="print-table ebat-table">
+      <colgroup>
+        <col style={{ width: '6%' }} />   {/* No */}
+        <col style={{ width: '15%' }} />  {/* En 1 */}
+        <col style={{ width: '15%' }} />  {/* Boy 1 */}
+        <col style={{ width: '10%' }} />  {/* Adet */}
+        <col style={{ width: '15%' }} />  {/* Boy 2 */}
+        <col style={{ width: '15%' }} />  {/* En 2 */}
+        {renderActions ? <col style={{ width: '8%' }} /> : null}
+      </colgroup>
       <thead>
         <tr>
-          <th style={{ width: 24 }}>NO</th>
-          <th>MALZEMENİN CİNSİ</th>
-          <th>PVC</th>
-          <th>BOY</th>
-          <th>EN</th>
-          <th>ADET</th>
-          <th>BOY</th>
-          <th>EN</th>
-          {renderActions ? <th style={{ width: 90 }}>İŞLEM</th> : null}
+          <th rowSpan="2">No</th>
+          <th colSpan="3">Malzeme Cinsi</th>
+          <th colSpan="2">PVC</th>
+          {renderActions ? <th rowSpan="2">İŞLEM</th> : null}
+        </tr>
+        <tr>
+          <th>En (mm)</th>
+          <th>Boy (mm)</th>
+          <th>Adet</th>
+          <th>Boy (X)</th>
+          <th>En (X)</th>
         </tr>
       </thead>
       <tbody>
         {slice.map((r, idx) => {
           const realIdx = startNo + idx - 1;
-          const isEmpty = !r.malzeme && !r.pvc && !r.boy1 && !r.en1 && !r.boy2 && !r.en2 && !r.adet;
+          const isEmpty =
+            !r.malzeme &&
+            !r.pvc &&
+            !r.boy1 &&
+            !r.en1 &&
+            !r.boy2 &&
+            !r.en2 &&
+            !r.adet;
           const clickable = !!onRowClick && !isEmpty;
+
+          if (isEmpty) {
+            return (
+              <tr key={idx} className="row-empty">
+                <td className="row-num">{startNo + idx}</td>
+                <td />
+                <td />
+                <td />
+                <td />
+                <td />
+                {renderActions ? <td /> : null}
+              </tr>
+            );
+          }
+
           return (
-            <tr
-              key={idx}
-              className={
-                (isEmpty ? 'row-empty ' : '') +
-                (clickable ? 'row-clickable' : '')
-              }
-              onClick={clickable ? () => onRowClick(realIdx) : undefined}
-            >
-              <td className="row-num">{startNo + idx}</td>
-              <td style={{ textAlign: 'left', paddingLeft: 4 }}>{r.malzeme}</td>
-              <td>{r.pvc}</td>
-              <td><DimCell value={r.boy1} flag={r.pvcBoy1} /></td>
-              <td><DimCell value={r.en1} flag={r.pvcEn1} /></td>
-              <td>{r.adet}</td>
-              <td><DimCell value={r.boy2 || r.boy1} flag={r.pvcBoy2} /></td>
-              <td><DimCell value={r.en2 || r.en1} flag={r.pvcEn2} /></td>
-              {renderActions ? (
-                <td onClick={(e) => e.stopPropagation()}>{renderActions(realIdx, r)}</td>
-              ) : null}
-            </tr>
+            <React.Fragment key={idx}>
+              {/* Üst satır: Malzeme Cinsi (3 kolon) + PVC (2 kolon) */}
+              <tr
+                className={clickable ? 'row-clickable row-meta' : 'row-meta'}
+                onClick={clickable ? () => onRowClick(realIdx) : undefined}
+              >
+                <td className="row-num" rowSpan="2">
+                  {startNo + idx}
+                </td>
+                <td colSpan="3" className="cell-malzeme">
+                  {r.malzeme}
+                </td>
+                <td colSpan="2" className="cell-pvc">
+                  {r.pvc}
+                </td>
+                {renderActions ? (
+                  <td rowSpan="2" onClick={(e) => e.stopPropagation()}>
+                    {renderActions(realIdx, r)}
+                  </td>
+                ) : null}
+              </tr>
+              {/* Alt satır: 5 ölçü hücresi (No yukarıda rowspan ile birleşik) */}
+              <tr
+                className={clickable ? 'row-clickable' : ''}
+                onClick={clickable ? () => onRowClick(realIdx) : undefined}
+              >
+                <td><DimCell value={r.en1} flag={r.pvcEn1} /></td>
+                <td><DimCell value={r.boy1} flag={r.pvcBoy1} /></td>
+                <td>{r.adet}</td>
+                <td><DimCell value={r.boy2 || r.boy1} flag={r.pvcBoy2} /></td>
+                <td><DimCell value={r.en2 || r.en1} flag={r.pvcEn2} /></td>
+              </tr>
+            </React.Fragment>
           );
         })}
       </tbody>

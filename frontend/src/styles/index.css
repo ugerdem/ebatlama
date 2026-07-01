@@ -790,6 +790,14 @@ table.data tr:hover { background: #f8fafc; }
   color: white;
   font-weight: 700;
 }
+/* Ekranda yazı tipi daha büyük, hücreler daha yüksek */
+.ebat-table {
+  font-size: 12px;
+}
+.ebat-table th, .ebat-table td {
+  height: 26px;
+  padding: 4px 6px;
+}
 .print-table .row-num { background: #f1f5f9; font-weight: 700; }
 .print-table .edge-x {
   display: inline-block;
@@ -814,6 +822,7 @@ table.data tr:hover { background: #f8fafc; }
 }
 .ebat-table tr.row-empty td {
   color: #cbd5e1;
+  height: 32px;
 }
 .ebat-table tr.row-clickable {
   cursor: pointer;
@@ -826,6 +835,20 @@ table.data tr:hover { background: #f8fafc; }
   padding: 2px 8px;
   font-size: 11px;
   min-width: 0;
+}
+/* Malzeme Cinsi / PVC grup hücreleri — formattaki başlık hücreleri */
+.ebat-table td.cell-malzeme {
+  background: #f8fafc;
+  font-weight: 600;
+  text-align: left;
+  padding-left: 6px;
+}
+.ebat-table td.cell-pvc {
+  background: #fef3c7;
+  font-weight: 600;
+}
+.ebat-table tr.row-meta td {
+  border-bottom: none;
 }
 
 @media (max-width: 720px) {

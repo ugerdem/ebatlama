@@ -89,9 +89,7 @@ export default function FormPrint({ form, compact = true }) {
         </div>
       </div>
 
-      <div className="print-tables-wrap">
-        <EbatTable rows={form.rows} />
-      </div>
+      <EbatTable rows={form.rows} />
 
       {form.notlar && (
         <div style={{ marginTop: 12, fontSize: 11 }}>

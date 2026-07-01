@@ -26,13 +26,24 @@ export function exportFormToExcel(form) {
   // Hücre değerinin sonuna kenar PVC işaretli ise " X" ekler
   const withX = (val, flag) => (flag ? `${val || ''} X` : val || '');
 
-  const tableHeader = ['NO', 'MALZEMENİN CİNSİ', 'PVC', 'BOY', 'EN', 'ADET', 'BOY', 'EN'];
+  // Formdaki tablo yapısıyla birebir: Malzeme Cinsi (3 kolon) + PVC (2 kolon)
+  // üst başlık, alt satırda En / Boy / Adet / Boy (X) / En (X)
+  const tableHeader = [
+    'NO',
+    'Malzeme Cinsi (En+Boy+Adet)',
+    'PVC (Boy+En)',
+    'En (mm)',
+    'Boy (mm)',
+    'Adet',
+    'Boy (X)',
+    'En (X)'
+  ];
   const tableRows = rows.map((r, i) => [
     i + 1,
     r.malzeme || '',
     r.pvc || '',
-    withX(r.boy1, r.pvcBoy1),
     withX(r.en1, r.pvcEn1),
+    withX(r.boy1, r.pvcBoy1),
     r.adet || 0,
     withX(r.boy2 || r.boy1, r.pvcBoy2),
     withX(r.en2 || r.en1, r.pvcEn2)
@@ -42,14 +53,14 @@ export function exportFormToExcel(form) {
 
   // Kolon genişlikleri
   ws['!cols'] = [
-    { wch: 5 }, // NO
-    { wch: 22 }, // MALZEME
-    { wch: 12 }, // PVC
-    { wch: 10 }, // BOY
-    { wch: 10 }, // EN
-    { wch: 8 }, // ADET
-    { wch: 10 }, // BOY
-    { wch: 10 } // EN
+    { wch: 5 },  // NO
+    { wch: 24 }, // Malzeme Cinsi
+    { wch: 14 }, // PVC
+    { wch: 10 }, // En
+    { wch: 10 }, // Boy
+    { wch: 8 },  // Adet
+    { wch: 10 }, // Boy (X)
+    { wch: 10 }  // En (X)
   ];
 
   const wb = XLSX.utils.book_new();
