@@ -497,5 +497,5 @@ export default function FormEntry() {
         </div>
       )}
     </div>
-  )
-};
+  );
+}
