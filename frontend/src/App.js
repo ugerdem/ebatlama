@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLocation } from 'react-router-dom';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './components/AuthContext';
 import Header from './components/Header';
@@ -53,10 +54,31 @@ function Shell() {
   );
 }
 
+function PublicLoginShell() {
+  return (
+    <div className="public-shell">
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    </div>
+  );
+}
+
+function AppContent() {
+  const location = useLocation();
+
+  if (location.pathname === '/login') {
+    return <PublicLoginShell />;
+  }
+
+  return <Shell />;
+}
+
 export default function App() {
   return (
     <AuthProvider>
-      <Shell />
+      <AppContent />
     </AuthProvider>
   );
 }
