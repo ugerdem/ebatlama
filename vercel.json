@@ -1,0 +1,33 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "backend/server.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "frontend",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "frontend/build"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "backend/server.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "frontend/build/index.html"
+    }
+  ],
+  "env": {
+    "MONGODB_URI": "@mongodb_uri",
+    "JWT_SECRET": "@jwt_secret",
+    "SEED_ADMIN_USERNAME": "@seed_admin_username",
+    "SEED_ADMIN_PASSWORD": "@seed_admin_password",
+    "SEED_ADMIN_NAME": "@seed_admin_name"
+  }
+}
