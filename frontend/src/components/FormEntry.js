@@ -97,6 +97,26 @@ export default function FormEntry() {
     return errs;
   }
 
+  function validateSavedRows(rows) {
+    const errs = [];
+    (rows || []).forEach((row, index) => {
+      if (!row.malzeme?.trim()) errs.push(`${index + 1}. satırda malzeme cinsi eksik`);
+      if (!row.pvc) errs.push(`${index + 1}. satırda PVC tipi eksik`);
+      if (!row.boy1?.trim()) errs.push(`${index + 1}. satırda 1. boy eksik`);
+      if (!row.en1?.trim()) errs.push(`${index + 1}. satırda 1. en eksik`);
+      if (!Number(row.adet) || Number(row.adet) <= 0) {
+        errs.push(`${index + 1}. satırda adet 0'dan büyük olmalı`);
+      }
+      if (row.useBoy2 && !row.boy2?.trim()) {
+        errs.push(`${index + 1}. satırda 2. boy işaretli ama boş`);
+      }
+      if (row.useEn2 && !row.en2?.trim()) {
+        errs.push(`${index + 1}. satırda 2. en işaretli ama boş`);
+      }
+    });
+    return errs;
+  }
+
   function saveRow() {
     const errs = validateRowDraft(rowDraft);
     setRowErrors(errs);
@@ -147,6 +167,16 @@ export default function FormEntry() {
     const rows = compactRows(form.rows);
     if (rows.length === 0) {
       setToast({ type: 'error', message: 'En az bir tablo kaydı girmelisiniz' });
+      return;
+    }
+
+    const rowValidationErrors = validateSavedRows(rows);
+    if (rowValidationErrors.length) {
+      setToast({
+        type: 'error',
+        message: 'Satırlarda eksik bilgi var. Lütfen tüm kayıtları tam doldurun.'
+      });
+      setErrors(rowValidationErrors);
       return;
     }
 
@@ -275,7 +305,7 @@ export default function FormEntry() {
                       <div className="row-summary-title">{idx + 1}. kayıt</div>
                       <div className="row-summary-main">{row.malzeme}</div>
                     </div>
-                    <span className="badge isleme_alindi">{row.pvc || 'PVC yok'}</span>
+                    <span className="badge isleme_alindi row-summary-badge">{row.pvc || 'PVC yok'}</span>
                   </div>
                   <div className="row-summary-meta">
                     <span><strong>1. Boy:</strong> {row.boy1} mm</span>
