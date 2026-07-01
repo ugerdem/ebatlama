@@ -23,11 +23,11 @@ export function exportFormToExcel(form) {
     []
   ];
 
-  // Hücre değerinin sonuna kenar PVC işaretli ise " X" ekler
-  const withX = (val, flag) => (flag ? `${val || ''} X` : val || '');
-
   // Formdaki tablo yapısıyla birebir: Malzeme Cinsi (3 kolon) + PVC (4 kenar)
   // üst başlık, alt satırda En / Boy / Adet / Boy 1 (X) / Boy 2 (X) / En 1 (X) / En 2 (X)
+  // PVC kenar hücreleri: sadece X (kenar işaretliyse) veya boş
+  const xOnly = (flag) => (flag ? 'X' : '');
+
   const tableHeader = [
     'NO',
     'Malzeme Cinsi (En+Boy+Adet)',
@@ -47,10 +47,10 @@ export function exportFormToExcel(form) {
     r.en1 || '',
     r.boy1 || '',
     r.adet || 0,
-    withX(r.boy1, r.pvcBoy1),
-    withX(r.boy1, r.pvcBoy2),
-    withX(r.en1, r.pvcEn1),
-    withX(r.en1, r.pvcEn2)
+    xOnly(r.pvcBoy1),
+    xOnly(r.pvcBoy2),
+    xOnly(r.pvcEn1),
+    xOnly(r.pvcEn2)
   ]);
 
   const ws = XLSX.utils.aoa_to_sheet([...headerInfo, tableHeader, ...tableRows]);

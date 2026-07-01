@@ -133,7 +133,7 @@ export default function EbatTable({
                   </td>
                 ) : null}
               </tr>
-              {/* Alt satır: 3 malzeme ölçüsü + 4 kenar hücresi (her biri kendi X işareti) */}
+              {/* Alt satır: 3 malzeme ölçüsü + 4 kenar hücresi (yalnızca X işareti) */}
               <tr
                 className={clickable ? 'row-clickable' : ''}
                 onClick={clickable ? () => onRowClick(realIdx) : undefined}
@@ -141,10 +141,10 @@ export default function EbatTable({
                 <td><DimCell value={r.en1} flag={false} /></td>
                 <td><DimCell value={r.boy1} flag={false} /></td>
                 <td>{r.adet}</td>
-                <td><DimCell value={r.boy1} flag={r.pvcBoy1} /></td>
-                <td><DimCell value={r.boy1} flag={r.pvcBoy2} /></td>
-                <td><DimCell value={r.en1} flag={r.pvcEn1} /></td>
-                <td><DimCell value={r.en1} flag={r.pvcEn2} /></td>
+                <td>{r.pvcBoy1 ? <span className="edge-x">X</span> : ''}</td>
+                <td>{r.pvcBoy2 ? <span className="edge-x">X</span> : ''}</td>
+                <td>{r.pvcEn1 ? <span className="edge-x">X</span> : ''}</td>
+                <td>{r.pvcEn2 ? <span className="edge-x">X</span> : ''}</td>
               </tr>
             </React.Fragment>
           );
