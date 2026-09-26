@@ -10,6 +10,7 @@ import {
 import { STATUS_OPTIONS, formatDateTime } from '../utils/helpers';
 import { useAuth } from './AuthContext';
 import { usePvcOptions } from './PvcOptionsContext';
+import { useMalzemeOptions } from './MalzemeOptionsContext';
 import FormPrint from './FormPrint';
 import Toast from './Toast';
 import { exportFormToExcel } from '../utils/excel';
@@ -20,6 +21,7 @@ export default function FormDetail() {
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
   const { pvcOptions: PVC_OPTIONS } = usePvcOptions();
+  const { malzemeOptions: MALZEME_OPTIONS } = useMalzemeOptions();
 
   const [form, setForm] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -328,10 +330,17 @@ export default function FormDetail() {
                   <tr key={idx}>
                     <td className="row-num">{idx + 1}</td>
                     <td>
-                      <input
+                      <select
                         value={row.malzeme || ''}
                         onChange={(e) => updateEditRow(idx, 'malzeme', e.target.value)}
-                      />
+                      >
+                        <option value="">-</option>
+                        {MALZEME_OPTIONS.map((o) => (
+                          <option key={o} value={o}>
+                            {o}
+                          </option>
+                        ))}
+                      </select>
                     </td>
                     <td>
                       <select

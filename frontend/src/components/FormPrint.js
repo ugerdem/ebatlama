@@ -10,6 +10,14 @@ export default function FormPrint({ form, compact = true }) {
 
   const printDate = formatDate(form.formTarihi || form.createdAt);
   const pvcList = (form.pvcSecim || []).join(' • ') || '—';
+  const rowsByMalzeme = Array.from(
+    (form.rows || []).reduce((map, row) => {
+      const key = (row?.malzeme || '').trim() || 'Malzeme belirtilmedi';
+      if (!map.has(key)) map.set(key, []);
+      map.get(key).push(row);
+      return map;
+    }, new Map())
+  );
 
   return (
     <div className="print-page">
@@ -89,7 +97,28 @@ export default function FormPrint({ form, compact = true }) {
         </div>
       </div>
 
-      <EbatTable rows={form.rows} />
+      {rowsByMalzeme.length === 0 ? (
+        <EbatTable rows={form.rows} />
+      ) : (
+        <div className="grouped-ebat-sections">
+          {rowsByMalzeme.map(([malzeme, groupedRows]) => {
+            const pvcText = Array.from(
+              new Set(groupedRows.map((r) => (r.pvc || '').trim()).filter(Boolean))
+            ).join(' • ') || '—';
+
+            return (
+              <details key={malzeme} className="grouped-ebat-section" open>
+                <summary className="grouped-ebat-summary">
+                  <span><strong>Malzeme:</strong> {malzeme}</span>
+                  <span><strong>PVC:</strong> {pvcText}</span>
+                  <span><strong>Satır:</strong> {groupedRows.length}</span>
+                </summary>
+                <EbatTable rows={groupedRows} totalRows={null} split={false} />
+              </details>
+            );
+          })}
+        </div>
+      )}
 
       {form.notlar && (
         <div style={{ marginTop: 12, fontSize: 11 }}>

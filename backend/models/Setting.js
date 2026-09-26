@@ -12,7 +12,8 @@ const settingSchema = new mongoose.Schema(
 
 // Anahtarlar için varsayılan değerler (koleksiyon boşsa otomatik oluşur)
 settingSchema.statics.DEFAULTS = {
-  pvc_tipleri: ['0.40mm PVC', '0.80mm PVC', '2mm PVC']
+  pvc_tipleri: ['0.40mm PVC', '0.80mm PVC', '2mm PVC'],
+  malzeme_tipleri: ['MDFLAM', 'SUNTALAM', 'Masif Panel']
 };
 
 // Anahtara göre ayarı getirir; kayıt yoksa varsayılan değerlerle oluşturur.

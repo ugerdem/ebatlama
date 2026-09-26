@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './components/AuthContext';
 import { PvcOptionsProvider } from './components/PvcOptionsContext';
+import { MalzemeOptionsProvider } from './components/MalzemeOptionsContext';
 import Header from './components/Header';
 import Login from './components/Login';
 import FormList from './components/FormList';
@@ -10,6 +11,7 @@ import FormEntry from './components/FormEntry';
 import FormDetail from './components/FormDetail';
 import FormQuery from './components/FormQuery';
 import AdminPvcTipleri from './components/AdminPvcTipleri';
+import AdminMalzemeTipleri from './components/AdminMalzemeTipleri';
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
@@ -30,10 +32,11 @@ function AdminRoute({ children }) {
 function Shell() {
   return (
     <PvcOptionsProvider>
-      <div className="app-shell">
-        <Header />
-        <main className="app-main">
-          <Routes>
+      <MalzemeOptionsProvider>
+        <div className="app-shell">
+          <Header />
+          <main className="app-main">
+            <Routes>
             <Route path="/login" element={<Login />} />
             <Route
               path="/"
@@ -63,14 +66,23 @@ function Shell() {
                 </AdminRoute>
               }
             />
-            <Route
-              path="/query"
-              element={<FormQuery />}
-            />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </main>
-      </div>
+              <Route
+                path="/admin/malzeme-tipleri"
+                element={
+                  <AdminRoute>
+                    <AdminMalzemeTipleri />
+                  </AdminRoute>
+                }
+              />
+              <Route
+                path="/query"
+                element={<FormQuery />}
+              />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </main>
+        </div>
+      </MalzemeOptionsProvider>
     </PvcOptionsProvider>
   );
 }

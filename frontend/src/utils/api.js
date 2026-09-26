@@ -48,6 +48,14 @@ export const renamePvcTipi = (eski, yeni) => api.put('/settings/pvc-tipleri', { 
 export const deletePvcTipi = (ad) =>
   api.delete(`/settings/pvc-tipleri/${encodeURIComponent(ad)}`);
 
+// Settings — Malzeme tipleri
+export const getMalzemeTipleri = () => api.get('/settings/malzeme-tipleri');
+export const addMalzemeTipi = (ad) => api.post('/settings/malzeme-tipleri', { ad });
+export const renameMalzemeTipi = (eski, yeni) =>
+  api.put('/settings/malzeme-tipleri', { eski, yeni });
+export const deleteMalzemeTipi = (ad) =>
+  api.delete(`/settings/malzeme-tipleri/${encodeURIComponent(ad)}`);
+
 // Status mapping
 export const STATUS_LABEL = {
   ilk_girildi: 'İlk Girildi',

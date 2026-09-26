@@ -16,6 +16,7 @@ export function makeEmptyRows() {
 }
 
 export const PVC_OPTIONS = ['0.40mm PVC', '0.80mm PVC', '2mm PVC'];
+export const MALZEME_OPTIONS = ['MDFLAM', 'SUNTALAM', 'Masif Panel'];
 
 export const STATUS_OPTIONS = [
   { value: 'ilk_girildi', label: 'İlk Girildi' },

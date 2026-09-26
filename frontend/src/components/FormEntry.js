@@ -6,11 +6,25 @@ import Toast from './Toast';
 import EbatTable from './EbatTable';
 import { useAuth } from './AuthContext';
 import { usePvcOptions } from './PvcOptionsContext';
+import { useMalzemeOptions } from './MalzemeOptionsContext';
+
+const EMPTY_ROW_DRAFT = {
+  malzeme: '',
+  pvc: '',
+  boy1: '',
+  en1: '',
+  adet: '1',
+  pvcBoy1: false,
+  pvcBoy2: false,
+  pvcEn1: false,
+  pvcEn2: false
+};
 
 export default function FormEntry() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { pvcOptions: PVC_OPTIONS } = usePvcOptions();
+  const { malzemeOptions: MALZEME_OPTIONS } = useMalzemeOptions();
 
   const [form, setForm] = useState({
     firma: '',
@@ -23,17 +37,8 @@ export default function FormEntry() {
 
   const [showRowModal, setShowRowModal] = useState(false);
   const [editingIndex, setEditingIndex] = useState(null);
-  const [rowDraft, setRowDraft] = useState({
-    malzeme: '',
-    pvc: '',
-    boy1: '',
-    en1: '',
-    adet: '',
-    pvcBoy1: false,
-    pvcBoy2: false,
-    pvcEn1: false,
-    pvcEn2: false
-  });
+  const [rowDraft, setRowDraft] = useState(EMPTY_ROW_DRAFT);
+  const [modalRows, setModalRows] = useState([]);
   const [submitting, setSubmitting] = useState(false);
   const [toast, setToast] = useState(null);
   const [errors, setErrors] = useState([]);
@@ -51,17 +56,8 @@ export default function FormEntry() {
   function openNewRowModal() {
     setEditingIndex(null);
     setRowErrors([]);
-    setRowDraft({
-      malzeme: '',
-      pvc: '',
-      boy1: '',
-      en1: '',
-      adet: '',
-      pvcBoy1: false,
-      pvcBoy2: false,
-      pvcEn1: false,
-      pvcEn2: false
-    });
+    setRowDraft(EMPTY_ROW_DRAFT);
+    setModalRows([]);
     setShowRowModal(true);
   }
 
@@ -87,6 +83,7 @@ export default function FormEntry() {
     setShowRowModal(false);
     setEditingIndex(null);
     setRowErrors([]);
+    setModalRows([]);
   }
 
   function updateRowDraft(field, value) {
@@ -98,7 +95,9 @@ export default function FormEntry() {
     if (!draft.malzeme.trim()) errs.push('Malzeme cinsi zorunlu');
     if (!draft.pvc) errs.push('PVC tipi seçmelisiniz');
     if (!draft.boy1.trim()) errs.push('Boy (mm) bilgisi zorunlu');
+    else if (Number(draft.boy1) <= 0) errs.push('Boy (mm) 0’dan büyük olmalı');
     if (!draft.en1.trim()) errs.push('En (mm) bilgisi zorunlu');
+    else if (Number(draft.en1) <= 0) errs.push('En (mm) 0’dan büyük olmalı');
     if (!String(draft.adet).trim() || Number(draft.adet) <= 0) errs.push('Adet 0’dan büyük olmalı');
     return errs;
   }
@@ -109,7 +108,9 @@ export default function FormEntry() {
       if (!row.malzeme?.trim()) errs.push(`${index + 1}. satırda malzeme cinsi eksik`);
       if (!row.pvc) errs.push(`${index + 1}. satırda PVC tipi eksik`);
       if (!row.boy1?.trim()) errs.push(`${index + 1}. satırda boy (mm) eksik`);
+      else if (Number(row.boy1) <= 0) errs.push(`${index + 1}. satırda boy (mm) 0'dan büyük olmalı`);
       if (!row.en1?.trim()) errs.push(`${index + 1}. satırda en (mm) eksik`);
+      else if (Number(row.en1) <= 0) errs.push(`${index + 1}. satırda en (mm) 0'dan büyük olmalı`);
       if (!Number(row.adet) || Number(row.adet) <= 0) {
         errs.push(`${index + 1}. satırda adet 0'dan büyük olmalı`);
       }
@@ -118,31 +119,61 @@ export default function FormEntry() {
   }
 
   function saveRow() {
-    const errs = validateRowDraft(rowDraft);
+    const lockedBaseRow = editingIndex === null && modalRows.length > 0 ? modalRows[0] : null;
+    const draftToValidate = lockedBaseRow
+      ? { ...rowDraft, malzeme: lockedBaseRow.malzeme }
+      : rowDraft;
+
+    const errs = validateRowDraft(draftToValidate);
     setRowErrors(errs);
     if (errs.length) return;
 
     const normalized = {
-      malzeme: rowDraft.malzeme.trim(),
-      pvc: rowDraft.pvc,
-      boy1: rowDraft.boy1.trim(),
-      en1: rowDraft.en1.trim(),
-      adet: Number(rowDraft.adet),
-      pvcBoy1: rowDraft.pvcBoy1 === true,
-      pvcBoy2: rowDraft.pvcBoy2 === true,
-      pvcEn1: rowDraft.pvcEn1 === true,
-      pvcEn2: rowDraft.pvcEn2 === true
+      malzeme: draftToValidate.malzeme.trim(),
+      pvc: draftToValidate.pvc,
+      boy1: draftToValidate.boy1.trim(),
+      en1: draftToValidate.en1.trim(),
+      adet: Number(draftToValidate.adet),
+      pvcBoy1: draftToValidate.pvcBoy1 === true,
+      pvcBoy2: draftToValidate.pvcBoy2 === true,
+      pvcEn1: draftToValidate.pvcEn1 === true,
+      pvcEn2: draftToValidate.pvcEn2 === true
     };
+
+    if (editingIndex === null) {
+      setModalRows((rows) => [...rows, normalized]);
+      setRowErrors([]);
+      setRowDraft({
+        ...EMPTY_ROW_DRAFT,
+        malzeme: normalized.malzeme
+      });
+      return;
+    }
 
     setForm((f) => {
       const rows = [...f.rows];
-      if (editingIndex === null) {
-        rows.push(normalized);
-      } else {
-        rows[editingIndex] = normalized;
-      }
+      rows[editingIndex] = normalized;
       return { ...f, rows };
     });
+
+    closeRowModal();
+  }
+
+  function transferModalRowsToMainTable() {
+    if (editingIndex !== null) {
+      closeRowModal();
+      return;
+    }
+
+    if (modalRows.length === 0) {
+      setRowErrors(['Önce en az bir satırı popup tablosuna ekleyin']);
+      return;
+    }
+
+    setForm((f) => ({
+      ...f,
+      rows: [...f.rows, ...modalRows]
+    }));
 
     closeRowModal();
   }
@@ -208,6 +239,17 @@ export default function FormEntry() {
       setSubmitting(false);
     }
   }
+
+  const popupPreviewRows = editingIndex === null ? modalRows : [rowDraft];
+  const isPopupMaterialLocked = editingIndex === null && modalRows.length > 0;
+  const rowsByMalzeme = Array.from(
+    (form.rows || []).reduce((map, row, idx) => {
+      const key = (row?.malzeme || '').trim() || 'Malzeme belirtilmedi';
+      if (!map.has(key)) map.set(key, []);
+      map.get(key).push({ ...row, __sourceIndex: idx });
+      return map;
+    }, new Map())
+  );
 
   return (
     <div>
@@ -287,25 +329,46 @@ export default function FormEntry() {
               + Satır Ekle
             </button>
           </div>
-          <div className="alert info" style={{ marginTop: 12 }}>
-            Dolu kayıt sayısı: <strong>{compactRows(form.rows).length}</strong> / 44 —
-            Satıra tıklayarak düzenleyebilir, sağdaki butonla silebilirsiniz.
-          </div>
+          {rowsByMalzeme.length === 0 ? (
+            <div className="alert info" style={{ marginTop: 12 }}>
+              Satır ekleme aksiyonu sonrasında siparişiniz burada görünecektir.
+            </div>
+          ) : (
+            <div className="grouped-ebat-sections">
+              {rowsByMalzeme.map(([malzeme, groupedRows]) => {
+                const pvcText = Array.from(
+                  new Set(groupedRows.map((r) => (r.pvc || '').trim()).filter(Boolean))
+                ).join(' • ') || '—';
 
-          <EbatTable
-            rows={form.rows}
-            onRowClick={(idx) => openEditRowModal(idx)}
-            renderActions={(idx) => (
-              <button
-                type="button"
-                className="btn danger btn-xs"
-                onClick={() => deleteRow(idx)}
-                title="Satırı sil"
-              >
-                Sil
-              </button>
-            )}
-          />
+                return (
+                  <details key={malzeme} className="grouped-ebat-section" open>
+                    <summary className="grouped-ebat-summary">
+                      <span><strong>Malzeme:</strong> {malzeme}</span>
+                      <span><strong>PVC:</strong> {pvcText}</span>
+                      <span><strong>Satır:</strong> {groupedRows.length}</span>
+                    </summary>
+
+                    <EbatTable
+                      rows={groupedRows}
+                      totalRows={null}
+                      split={false}
+                      onRowClick={(idx) => openEditRowModal(groupedRows[idx].__sourceIndex)}
+                      renderActions={(idx) => (
+                        <button
+                          type="button"
+                          className="btn danger btn-xs"
+                          onClick={() => deleteRow(groupedRows[idx].__sourceIndex)}
+                          title="Satırı sil"
+                        >
+                          Sil
+                        </button>
+                      )}
+                    />
+                  </details>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         <div className="btn-row" style={{ marginTop: 20 }}>
@@ -346,23 +409,46 @@ export default function FormEntry() {
                 </div>
               )}
 
-              {/* 1. Malzeme Cinsi */}
-              <div className="modal-section">
-                <div className="section-caption">1. Malzeme</div>
-                <div className="field">
-                  <label>Malzeme Cinsi *</label>
-                  <input
-                    value={rowDraft.malzeme}
-                    onChange={(e) => updateRowDraft('malzeme', e.target.value)}
-                    placeholder="Örn: MDFLAM, SAUTALAM, Masif Panel"
-                  />
+              {/* 1-2. Önce malzeme ve PVC */}
+              <div className="modal-section compact-top-section">
+                <div className="section-caption">1. Malzeme ve PVC</div>
+                <div className="row-form-grid row-form-grid-compact">
+                  <div className="field">
+                    <label>Malzeme Cinsi *</label>
+                    <select
+                      value={rowDraft.malzeme}
+                      onChange={(e) => updateRowDraft('malzeme', e.target.value)}
+                      disabled={isPopupMaterialLocked}
+                    >
+                      <option value="">Seçiniz</option>
+                      {MALZEME_OPTIONS.map((o) => (
+                        <option key={o} value={o}>
+                          {o}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="field">
+                    <label>PVC Tipi *</label>
+                    <select
+                      value={rowDraft.pvc}
+                      onChange={(e) => updateRowDraft('pvc', e.target.value)}
+                    >
+                      <option value="">Seçiniz</option>
+                      {PVC_OPTIONS.map((o) => (
+                        <option key={o} value={o}>
+                          {o}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               </div>
 
-              {/* 2. En / Boy (mm) */}
+              {/* 3. Diğer bilgiler */}
               <div className="modal-section">
-                <div className="section-caption">2. Ölçüler (mm)</div>
-                <div className="row-form-grid">
+                <div className="section-caption">2. Diğer Bilgiler</div>
+                <div className="row-form-grid row-form-grid-compact">
                   <div className="field">
                     <label>En (mm) *</label>
                     <input
@@ -383,31 +469,26 @@ export default function FormEntry() {
                       pattern="[0-9]*"
                     />
                   </div>
-                </div>
-              </div>
-
-              {/* 3. PVC Tipi */}
-              <div className="modal-section">
-                <div className="section-caption">3. PVC</div>
-                <div className="field">
-                  <label>PVC Tipi *</label>
-                  <select
-                    value={rowDraft.pvc}
-                    onChange={(e) => updateRowDraft('pvc', e.target.value)}
-                  >
-                    <option value="">Seçiniz</option>
-                    {PVC_OPTIONS.map((o) => (
-                      <option key={o} value={o}>
-                        {o}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="field">
+                    <label>Adet *</label>
+                    <input
+                      type="number"
+                      min="1"
+                      step="1"
+                      value={rowDraft.adet}
+                      onChange={(e) => updateRowDraft('adet', onlyDigits(e.target.value))}
+                      onKeyDown={(e) => {
+                        if (['e', 'E', '+', '-', '.'].includes(e.key)) e.preventDefault();
+                      }}
+                      placeholder="1"
+                    />
+                  </div>
                 </div>
               </div>
 
               {/* 4. PVC Kenarları — dikdörtgen tahta, 4 kenar bağımsız */}
               <div className="modal-section">
-                <div className="section-caption">4. PVC Kenarları</div>
+                <div className="section-caption">3. PVC Kenarları</div>
                 <p className="row-dimension-hint" style={{ margin: '0 0 8px' }}>
                   PVC uygulanacak ölçü kenarlarını seçin.
                 </p>
@@ -447,22 +528,19 @@ export default function FormEntry() {
                 </div>
               </div>
 
-              {/* 5. Adet — her şeyin altında */}
+              {editingIndex === null && (
+                <div className="modal-inline-actions">
+                  <button type="button" className="btn" onClick={saveRow}>
+                    Ekle
+                  </button>
+                </div>
+              )}
+
+              {/* 5. Popup altında tablo önizleme alanı */}
               <div className="modal-section">
-                <div className="section-caption">5. Adet</div>
-                <div className="field">
-                  <label>Adet *</label>
-                  <input
-                    type="number"
-                    min="1"
-                    step="1"
-                    value={rowDraft.adet}
-                    onChange={(e) => updateRowDraft('adet', onlyDigits(e.target.value))}
-                    onKeyDown={(e) => {
-                      if (['e', 'E', '+', '-', '.'].includes(e.key)) e.preventDefault();
-                    }}
-                    placeholder="1"
-                  />
+                <div className="section-caption">4. Eklenecek Satır Önizleme</div>
+                <div className="modal-ebat-preview">
+                  <EbatTable rows={popupPreviewRows} totalRows={null} split={false} />
                 </div>
               </div>
 
@@ -470,9 +548,15 @@ export default function FormEntry() {
                 <button type="button" className="btn secondary" onClick={closeRowModal}>
                   İptal
                 </button>
-                <button type="button" className="btn" onClick={saveRow}>
-                  {editingIndex === null ? 'Satırı Ekle' : 'Güncelle'}
-                </button>
+                {editingIndex === null ? (
+                  <button type="button" className="btn" onClick={transferModalRowsToMainTable}>
+                    Satırları Ana Tabloya Aktar
+                  </button>
+                ) : (
+                  <button type="button" className="btn" onClick={saveRow}>
+                    Güncelle
+                  </button>
+                )}
               </div>
             </div>
           </div>

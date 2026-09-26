@@ -2,7 +2,7 @@ const express = require('express');
 const Form = require('../models/Form');
 const { authRequired, authOptional, requireRole } = require('../middleware/auth');
 const { generateFormNo } = require('../utils/formNo');
-const { getPvcValues } = require('./settings');
+const { getPvcValues, getMalzemeValues } = require('./settings');
 
 const router = express.Router();
 
@@ -78,6 +78,17 @@ router.post('/', authOptional, async (req, res) => {
       return res.status(400).json({
         error: `Geçersiz satır PVC tipi: ${invalidRowPvc.join(', ')}`,
         detail: 'PVC tipleri yönetim panelinden güncellenmiş olabilir.'
+      });
+    }
+
+    const malzemeSet = new Set(await getMalzemeValues());
+    const invalidRowMalzeme = [
+      ...new Set(fullRows.map((r) => r.malzeme).filter((v) => v && !malzemeSet.has(v)))
+    ];
+    if (invalidRowMalzeme.length > 0) {
+      return res.status(400).json({
+        error: `Geçersiz satır malzeme tipi: ${invalidRowMalzeme.join(', ')}`,
+        detail: 'Malzeme tipleri yönetim panelinden güncellenmiş olabilir.'
       });
     }
 
