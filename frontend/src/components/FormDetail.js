@@ -7,8 +7,9 @@ import {
   STATUS_LABEL,
   deleteForm
 } from '../utils/api';
-import { PVC_OPTIONS, STATUS_OPTIONS, formatDateTime } from '../utils/helpers';
+import { STATUS_OPTIONS, formatDateTime } from '../utils/helpers';
 import { useAuth } from './AuthContext';
+import { usePvcOptions } from './PvcOptionsContext';
 import FormPrint from './FormPrint';
 import Toast from './Toast';
 import { exportFormToExcel } from '../utils/excel';
@@ -18,6 +19,7 @@ export default function FormDetail() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
+  const { pvcOptions: PVC_OPTIONS } = usePvcOptions();
 
   const [form, setForm] = useState(null);
   const [loading, setLoading] = useState(true);

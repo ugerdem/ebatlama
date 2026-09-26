@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createForm } from '../utils/api';
-import { PVC_OPTIONS, validateForm, compactRows } from '../utils/helpers';
+import { validateForm, compactRows } from '../utils/helpers';
 import Toast from './Toast';
 import EbatTable from './EbatTable';
 import { useAuth } from './AuthContext';
+import { usePvcOptions } from './PvcOptionsContext';
 
 export default function FormEntry() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { pvcOptions: PVC_OPTIONS } = usePvcOptions();
 
   const [form, setForm] = useState({
     firma: '',
@@ -407,52 +409,41 @@ export default function FormEntry() {
               <div className="modal-section">
                 <div className="section-caption">4. PVC Kenarları</div>
                 <p className="row-dimension-hint" style={{ margin: '0 0 8px' }}>
-                  Tahtanın hangi kenarlarına PVC uygulanacağını seçin (4 kenar bağımsız).
+                  PVC uygulanacak ölçü kenarlarını seçin.
                 </p>
                 <div className="edge-grid">
-                  <div className="edge-cell edge-cell-top">
-                    <label className="dim-checkbox-row">
-                      <input
-                        type="checkbox"
-                        checked={rowDraft.pvcBoy1}
-                        onChange={(e) => updateRowDraft('pvcBoy1', e.target.checked)}
-                      />
-                      <span>Üst kenar (Boy 1)</span>
-                    </label>
-                  </div>
-                  <div className="edge-cell edge-cell-left">
-                    <label className="dim-checkbox-row">
-                      <input
-                        type="checkbox"
-                        checked={rowDraft.pvcEn1}
-                        onChange={(e) => updateRowDraft('pvcEn1', e.target.checked)}
-                      />
-                      <span>Sol kenar (En 1)</span>
-                    </label>
-                  </div>
-                  <div className="edge-cell edge-cell-board">
-                    <div className="edge-board-inner" />
-                  </div>
-                  <div className="edge-cell edge-cell-right">
-                    <label className="dim-checkbox-row">
-                      <input
-                        type="checkbox"
-                        checked={rowDraft.pvcEn2}
-                        onChange={(e) => updateRowDraft('pvcEn2', e.target.checked)}
-                      />
-                      <span>Sağ kenar (En 2)</span>
-                    </label>
-                  </div>
-                  <div className="edge-cell edge-cell-bottom">
-                    <label className="dim-checkbox-row">
-                      <input
-                        type="checkbox"
-                        checked={rowDraft.pvcBoy2}
-                        onChange={(e) => updateRowDraft('pvcBoy2', e.target.checked)}
-                      />
-                      <span>Alt kenar (Boy 2)</span>
-                    </label>
-                  </div>
+                  <label className="dim-checkbox-row">
+                    <input
+                      type="checkbox"
+                      checked={rowDraft.pvcBoy1}
+                      onChange={(e) => updateRowDraft('pvcBoy1', e.target.checked)}
+                    />
+                    <span>Boy 1</span>
+                  </label>
+                  <label className="dim-checkbox-row">
+                    <input
+                      type="checkbox"
+                      checked={rowDraft.pvcEn1}
+                      onChange={(e) => updateRowDraft('pvcEn1', e.target.checked)}
+                    />
+                    <span>En 1</span>
+                  </label>
+                  <label className="dim-checkbox-row">
+                    <input
+                      type="checkbox"
+                      checked={rowDraft.pvcBoy2}
+                      onChange={(e) => updateRowDraft('pvcBoy2', e.target.checked)}
+                    />
+                    <span>Boy 2</span>
+                  </label>
+                  <label className="dim-checkbox-row">
+                    <input
+                      type="checkbox"
+                      checked={rowDraft.pvcEn2}
+                      onChange={(e) => updateRowDraft('pvcEn2', e.target.checked)}
+                    />
+                    <span>En 2</span>
+                  </label>
                 </div>
               </div>
 

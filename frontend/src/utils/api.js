@@ -41,6 +41,13 @@ export const updateFormStatus = (id, durum, aciklama) =>
 export const queryForm = (formNo) => api.get(`/forms/query/${encodeURIComponent(formNo)}`);
 export const deleteForm = (id) => api.delete(`/forms/${id}`);
 
+// Settings — PVC tipleri
+export const getPvcTipleri = () => api.get('/settings/pvc-tipleri');
+export const addPvcTipi = (ad) => api.post('/settings/pvc-tipleri', { ad });
+export const renamePvcTipi = (eski, yeni) => api.put('/settings/pvc-tipleri', { eski, yeni });
+export const deletePvcTipi = (ad) =>
+  api.delete(`/settings/pvc-tipleri/${encodeURIComponent(ad)}`);
+
 // Status mapping
 export const STATUS_LABEL = {
   ilk_girildi: 'İlk Girildi',

@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 
 const authRoutes = require('./routes/auth');
 const formRoutes = require('./routes/forms');
+const settingRoutes = require('./routes/settings');
 
 const app = express();
 
@@ -133,6 +134,7 @@ app.get('/api/health', (_req, res) => {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/forms', formRoutes);
+app.use('/api/settings', settingRoutes);
 
 // 404
 app.use((req, res) => {

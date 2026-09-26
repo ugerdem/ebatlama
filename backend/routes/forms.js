@@ -2,6 +2,7 @@ const express = require('express');
 const Form = require('../models/Form');
 const { authRequired, authOptional, requireRole } = require('../middleware/auth');
 const { generateFormNo } = require('../utils/formNo');
+const { getPvcValues } = require('./settings');
 
 const router = express.Router();
 
@@ -61,6 +62,24 @@ router.post('/', authOptional, async (req, res) => {
         pvcEn2: r.pvcEn2 === true
       };
     });
+
+    // PVC seçimlerini DB'deki güncel listeyle doğrula
+    const pvcValues = await getPvcValues();
+    const pvcSet = new Set(pvcValues);
+    const invalidPvc = (Array.isArray(pvcSecim) ? pvcSecim : []).filter((v) => !pvcSet.has(v));
+    if (invalidPvc.length > 0) {
+      return res.status(400).json({
+        error: `Geçersiz PVC tipi: ${invalidPvc.join(', ')}`,
+        detail: 'PVC tipleri yönetim panelinden güncellenmiş olabilir.'
+      });
+    }
+    const invalidRowPvc = [...new Set(fullRows.map((r) => r.pvc).filter((v) => v && !pvcSet.has(v)))];
+    if (invalidRowPvc.length > 0) {
+      return res.status(400).json({
+        error: `Geçersiz satır PVC tipi: ${invalidRowPvc.join(', ')}`,
+        detail: 'PVC tipleri yönetim panelinden güncellenmiş olabilir.'
+      });
+    }
 
     const formNo = await generateFormNo();
     const creatorId = req.user?._id || null;
@@ -145,14 +164,35 @@ router.put('/:id', async (req, res) => {
     if (telefon !== undefined) form.telefon = telefon;
     if (yetkili !== undefined) form.yetkili = yetkili;
     if (adres !== undefined) form.adres = adres;
+
+    // PVC seçimlerini DB'deki güncel listeyle doğrula
+    // (eski formlardaki artık geçerli olmayan değerler korunur)
+    const pvcSet = new Set(await getPvcValues());
+    const effectivePvcSecim = Array.isArray(pvcSecim) ? pvcSecim : form.pvcSecim || [];
+    const invalidPvc = effectivePvcSecim.filter((v) => !pvcSet.has(v));
+    if (invalidPvc.length > 0) {
+      return res.status(400).json({
+        error: `Geçersiz PVC tipi: ${invalidPvc.join(', ')}`,
+        detail: 'PVC tipleri yönetim panelinden güncellenmiş olabilir.'
+      });
+    }
     if (Array.isArray(pvcSecim)) form.pvcSecim = pvcSecim;
     if (Array.isArray(rows)) {
       const incomingRows = rows;
       form.rows = Array.from({ length: 44 }, (_, i) => {
         const r = incomingRows[i] || {};
+        // Satırdaki mevcut PVC değeri artık listede yoksa ve istek
+        // bu alanı değiştirmiyorsa eski değer korunur
+        const existingRow = form.rows[i];
+        const rowPvc =
+          r.pvc !== undefined && r.pvc !== ''
+            ? r.pvc
+            : existingRow && existingRow.pvc && !pvcSet.has(existingRow.pvc)
+              ? existingRow.pvc
+              : r.pvc || '';
         return {
           malzeme: r.malzeme || '',
-          pvc: r.pvc || '',
+          pvc: rowPvc,
           boy1: r.boy1 != null ? String(r.boy1) : '',
           en1: r.en1 != null ? String(r.en1) : '',
           adet: Number(r.adet) || 0,

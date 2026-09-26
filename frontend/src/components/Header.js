@@ -58,6 +58,9 @@ export default function Header() {
           </NavLink>
           <NavLink to="/forms/new">Yeni Form</NavLink>
           <NavLink to="/query">Form Sorgula</NavLink>
+          {user.role === 'admin' && (
+            <NavLink to="/admin/pvc-tipleri">PVC Tipleri</NavLink>
+          )}
         </nav>
       )}
     </>

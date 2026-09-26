@@ -36,10 +36,10 @@ const formSchema = new mongoose.Schema(
     // Tarih (formda gösterilecek)
     formTarihi: { type: Date, default: Date.now },
 
-    // Seçilen PVC tipleri (checkbox/dropdown; birden fazla olabilir)
+    // Seçilen PVC tipleri (birden fazla olabilir)
+    // Geçerli değerler admin tarafından Setting koleksiyonundan (pvc_tipleri) yönetilir
     pvcSecim: {
       type: [String],
-      enum: ['0.40mm PVC', '0.80mm PVC', '2mm PVC'],
       default: []
     },
 
