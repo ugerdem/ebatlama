@@ -2,6 +2,7 @@ import React from 'react';
 import { STATUS_LABEL } from '../utils/api';
 import { formatDate } from '../utils/helpers';
 import EbatTable from './EbatTable';
+import { exportFormRowsToExcel } from '../utils/excel';
 
 // Hem ekranda önizleme hem yazdırma için kullanılan A4 çıktısı.
 // pdf export: tarayıcı print → PDF kaydet (A4 boyutunda).
@@ -10,8 +11,22 @@ export default function FormPrint({ form, compact = true }) {
 
   const printDate = formatDate(form.formTarihi || form.createdAt);
   const pvcList = (form.pvcSecim || []).join(' • ') || '—';
+  const filledRows = (form.rows || []).filter((row) => {
+    if (!row) return false;
+    return Boolean(
+      String(row.malzeme || '').trim() ||
+      String(row.pvc || '').trim() ||
+      String(row.boy1 || '').trim() ||
+      String(row.en1 || '').trim() ||
+      Number(row.adet || 0) > 0 ||
+      row.pvcBoy1 === true ||
+      row.pvcBoy2 === true ||
+      row.pvcEn1 === true ||
+      row.pvcEn2 === true
+    );
+  });
   const rowsByMalzeme = Array.from(
-    (form.rows || []).reduce((map, row) => {
+    filledRows.reduce((map, row) => {
       const key = (row?.malzeme || '').trim() || 'Malzeme belirtilmedi';
       if (!map.has(key)) map.set(key, []);
       map.get(key).push(row);
@@ -98,7 +113,9 @@ export default function FormPrint({ form, compact = true }) {
       </div>
 
       {rowsByMalzeme.length === 0 ? (
-        <EbatTable rows={form.rows} />
+        <div className="alert info" style={{ marginTop: 10 }}>
+          Ön izleme için gösterilecek satır bulunamadı.
+        </div>
       ) : (
         <div className="grouped-ebat-sections">
           {rowsByMalzeme.map(([malzeme, groupedRows]) => {
@@ -112,6 +129,19 @@ export default function FormPrint({ form, compact = true }) {
                   <span><strong>Malzeme:</strong> {malzeme}</span>
                   <span><strong>PVC:</strong> {pvcText}</span>
                   <span><strong>Satır:</strong> {groupedRows.length}</span>
+                  <span className="group-actions no-print">
+                    <button
+                      type="button"
+                      className="btn secondary btn-xs"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        exportFormRowsToExcel(form, groupedRows, malzeme);
+                      }}
+                    >
+                      📊 Excel
+                    </button>
+                  </span>
                 </summary>
                 <EbatTable rows={groupedRows} totalRows={null} split={false} />
               </details>

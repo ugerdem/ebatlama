@@ -13,7 +13,6 @@ import { usePvcOptions } from './PvcOptionsContext';
 import { useMalzemeOptions } from './MalzemeOptionsContext';
 import FormPrint from './FormPrint';
 import Toast from './Toast';
-import { exportFormToExcel } from '../utils/excel';
 
 export default function FormDetail() {
   const { id } = useParams();
@@ -152,9 +151,6 @@ export default function FormDetail() {
           <div className="btn-row">
             <button className="btn" onClick={printAsPDF}>
               🖨 Yazdır / PDF
-            </button>
-            <button className="btn secondary" onClick={() => exportFormToExcel(form)}>
-              📊 Excel İndir
             </button>
             <Link to="/" className="btn ghost">
               ← Geri

@@ -874,6 +874,10 @@ table.data tr:hover { background: #f8fafc; }
   color: #0f766e;
 }
 
+.grouped-ebat-summary .group-actions {
+  margin-left: auto;
+}
+
 .grouped-ebat-section .ebat-table-wrap {
   margin-top: 0;
   padding: 8px;

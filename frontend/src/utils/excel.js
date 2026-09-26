@@ -78,6 +78,70 @@ export function exportFormToExcel(form) {
   XLSX.writeFile(wb, filename);
 }
 
+// Formun belirli satırlarını (örn. tek malzeme grubu) Excel'e aktarır.
+// Tablo kolonları önizlemedeki tablo ile aynı tutulur.
+export function exportFormRowsToExcel(form, rows, malzemeLabel = 'malzeme') {
+  if (!form) return;
+
+  const sourceRows = (rows || []).filter(Boolean);
+  const xOrPvc = (flag, pvc) => (flag ? (pvc || 'X') : '');
+
+  const headerInfo = [
+    ['MEŞE TASARIM VE AHŞAP ÜRÜNLERİ SAN. TİC. LTD. ŞTİ.'],
+    ['FASON İŞLEME MERKEZİ — MALZEME BAZLI EBAT LİSTESİ'],
+    [],
+    ['Form No', form.formNo],
+    ['Tarih', formatDate(form.formTarihi || form.createdAt)],
+    ['Firma', form.firma],
+    ['Malzeme', malzemeLabel],
+    ['Satır Sayısı', sourceRows.length],
+    []
+  ];
+
+  const tableHeader = [
+    'NO',
+    'En (mm)',
+    'Boy (mm)',
+    'Adet',
+    'Boy 1 (X)',
+    'Boy 2 (X)',
+    'En 1 (X)',
+    'En 2 (X)'
+  ];
+
+  const tableRows = sourceRows.map((r, i) => [
+    i + 1,
+    r.en1 || '',
+    r.boy1 || '',
+    r.adet || 0,
+    xOrPvc(r.pvcBoy1, r.pvc),
+    xOrPvc(r.pvcBoy2, r.pvc),
+    xOrPvc(r.pvcEn1, r.pvc),
+    xOrPvc(r.pvcEn2, r.pvc)
+  ]);
+
+  const ws = XLSX.utils.aoa_to_sheet([...headerInfo, tableHeader, ...tableRows]);
+  ws['!cols'] = [
+    { wch: 5 },
+    { wch: 12 },
+    { wch: 12 },
+    { wch: 8 },
+    { wch: 12 },
+    { wch: 12 },
+    { wch: 12 },
+    { wch: 12 }
+  ];
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Malzeme');
+
+  const filename = `${form.formNo || 'form'}_${malzemeLabel || 'malzeme'}.xlsx`
+    .replace(/\s+/g, '_')
+    .replace(/[^\w.-]/g, '_');
+
+  XLSX.writeFile(wb, filename);
+}
+
 // Liste halinde birden çok formu Excel'e aktarır
 export function exportFormsListToExcel(forms) {
   const header = [
