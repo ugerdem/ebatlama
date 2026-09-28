@@ -24,7 +24,7 @@ export function exportFormToExcel(form) {
   ];
 
   // Formdaki tablo yapısıyla birebir: Malzeme Cinsi (3 kolon) + PVC (4 kenar)
-  // üst başlık, alt satırda En / Boy / Adet / Boy 1 (X) / Boy 2 (X) / En 1 (X) / En 2 (X)
+  // üst başlık, alt satırda Boy / En / Adet / Boy 1 (X) / Boy 2 (X) / En 1 (X) / En 2 (X)
   // PVC kenar hücreleri: sadece X (kenar işaretliyse) veya boş
   const xOnly = (flag) => (flag ? 'X' : '');
 
@@ -32,8 +32,8 @@ export function exportFormToExcel(form) {
     'NO',
     'Malzeme Cinsi (En+Boy+Adet)',
     'PVC (4 kenar)',
-    'En (mm)',
     'Boy (mm)',
+    'En (mm)',
     'Adet',
     'Boy 1 (X)',
     'Boy 2 (X)',
@@ -44,8 +44,8 @@ export function exportFormToExcel(form) {
     i + 1,
     r.malzeme || '',
     r.pvc || '',
-    r.en1 || '',
     r.boy1 || '',
+    r.en1 || '',
     r.adet || 0,
     xOnly(r.pvcBoy1),
     xOnly(r.pvcBoy2),
@@ -60,8 +60,8 @@ export function exportFormToExcel(form) {
     { wch: 5 },  // NO
     { wch: 24 }, // Malzeme Cinsi
     { wch: 18 }, // PVC
-    { wch: 9 },  // En
     { wch: 9 },  // Boy
+    { wch: 9 },  // En
     { wch: 7 },  // Adet
     { wch: 10 }, // Boy 1 (X)
     { wch: 10 }, // Boy 2 (X)
@@ -100,8 +100,8 @@ export function exportFormRowsToExcel(form, rows, malzemeLabel = 'malzeme') {
 
   const tableHeader = [
     'NO',
-    'En (mm)',
     'Boy (mm)',
+    'En (mm)',
     'Adet',
     'Boy 1 (X)',
     'Boy 2 (X)',
@@ -111,8 +111,8 @@ export function exportFormRowsToExcel(form, rows, malzemeLabel = 'malzeme') {
 
   const tableRows = sourceRows.map((r, i) => [
     i + 1,
-    r.en1 || '',
     r.boy1 || '',
+    r.en1 || '',
     r.adet || 0,
     xOrPvc(r.pvcBoy1, r.pvc),
     xOrPvc(r.pvcBoy2, r.pvc),
