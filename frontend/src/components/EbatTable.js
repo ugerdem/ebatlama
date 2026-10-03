@@ -56,8 +56,8 @@ export default function EbatTable({
     <table className="print-table ebat-table">
       <colgroup>
         <col style={{ width: '5%' }} />   {/* No */}
-        <col style={{ width: '12%' }} />  {/* En (Malzeme) */}
         <col style={{ width: '12%' }} />  {/* Boy (Malzeme) */}
+        <col style={{ width: '12%' }} />  {/* En (Malzeme) */}
         <col style={{ width: '8%' }} />   {/* Adet (Malzeme) */}
         <col style={{ width: '12%' }} />  {/* Boy 1 (PVC) */}
         <col style={{ width: '12%' }} />  {/* Boy 2 (PVC) */}
@@ -68,8 +68,8 @@ export default function EbatTable({
       <thead>
         <tr>
           <th>No</th>
-          <th>En (mm)</th>
           <th>Boy (mm)</th>
+          <th>En (mm)</th>
           <th>Adet</th>
           <th>Boy 1 (X)</th>
           <th>Boy 2 (X)</th>
@@ -114,8 +114,8 @@ export default function EbatTable({
               onClick={clickable ? () => onRowClick(realIdx) : undefined}
             >
               <td className="row-num">{startNo + idx}</td>
-              <td><DimCell value={r.en1} flag={false} /></td>
               <td><DimCell value={r.boy1} flag={false} /></td>
+              <td><DimCell value={r.en1} flag={false} /></td>
               <td>{r.adet}</td>
               <td>{r.pvcBoy1 ? (r.pvc || <span className="edge-x">X</span>) : ''}</td>
               <td>{r.pvcBoy2 ? (r.pvc || <span className="edge-x">X</span>) : ''}</td>

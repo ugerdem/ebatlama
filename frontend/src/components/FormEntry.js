@@ -145,7 +145,8 @@ export default function FormEntry() {
       setRowErrors([]);
       setRowDraft({
         ...EMPTY_ROW_DRAFT,
-        malzeme: normalized.malzeme
+        malzeme: normalized.malzeme,
+        pvc: normalized.pvc
       });
       return;
     }
@@ -242,6 +243,7 @@ export default function FormEntry() {
 
   const popupPreviewRows = editingIndex === null ? modalRows : [rowDraft];
   const isPopupMaterialLocked = editingIndex === null && modalRows.length > 0;
+  const isPopupPvcLocked = editingIndex === null && modalRows.length > 0;
   const rowsByMalzeme = Array.from(
     (form.rows || []).reduce((map, row, idx) => {
       const key = (row?.malzeme || '').trim() || 'Malzeme belirtilmedi';
@@ -433,6 +435,7 @@ export default function FormEntry() {
                     <select
                       value={rowDraft.pvc}
                       onChange={(e) => updateRowDraft('pvc', e.target.value)}
+                      disabled={isPopupPvcLocked}
                     >
                       <option value="">Seçiniz</option>
                       {PVC_OPTIONS.map((o) => (
@@ -447,26 +450,21 @@ export default function FormEntry() {
 
               {/* 3. Diğer bilgiler */}
               <div className="modal-section">
-                <div className="section-caption">2. Diğer Bilgiler</div>
                 <div className="row-form-grid row-form-grid-compact">
-                  <div className="field">
-                    <label>En (mm) *</label>
-                    <input
-                      value={rowDraft.en1}
-                      onChange={(e) => updateRowDraft('en1', onlyDigits(e.target.value))}
-                      placeholder="mm"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                    />
-                  </div>
                   <div className="field">
                     <label>Boy (mm) *</label>
                     <input
                       value={rowDraft.boy1}
                       onChange={(e) => updateRowDraft('boy1', onlyDigits(e.target.value))}
                       placeholder="mm"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
+                    />
+                  </div>
+                  <div className="field">
+                    <label>En (mm) *</label>
+                    <input
+                      value={rowDraft.en1}
+                      onChange={(e) => updateRowDraft('en1', onlyDigits(e.target.value))}
+                      placeholder="mm"
                     />
                   </div>
                   <div className="field">
