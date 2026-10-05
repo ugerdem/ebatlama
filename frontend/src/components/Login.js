@@ -104,10 +104,6 @@ export default function Login() {
             <button className="btn" type="submit" disabled={submitting} style={{ width: '100%' }}>
               {submitting ? 'Giriş yapılıyor…' : 'Giriş Yap'}
             </button>
-
-            <div className="landing-mini-links">
-              <span>İlk kurulum:</span> <code>admin / admin123</code>
-            </div>
           </form>
 
           <div className="landing-card landing-side-card">
